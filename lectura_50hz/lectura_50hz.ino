@@ -1,6 +1,7 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
+#include <math.h>
 
 Adafruit_MPU6050 mpu;
 
@@ -75,8 +76,9 @@ void loop() {
       float to_send[] = {a.acceleration.x, a.acceleration.y, a.acceleration.z,
                         g.gyro.x, g.gyro.y, g.gyro.z};
       */
-      float to_send[] = {a.acceleration.x, a.acceleration.y, a.acceleration.z};
-      matlab_send(to_send, 3);
+      float angle = atan2(a.acceleration.y, a.acceleration.z) * 180 / PI;
+      float to_send[] = {angle};
+      matlab_send(to_send, 1);
     
     }  
   }
