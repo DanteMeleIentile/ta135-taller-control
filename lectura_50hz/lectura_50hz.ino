@@ -54,10 +54,10 @@ void loop() {
 
     float gx_deg        = g.gyro.x * 180.0 / PI + 2;
     angle_gyro_x        = angle_gyro_x + gx_deg * dt;
-    Serial.println(gx_deg);
-    Serial.println("------------");
-      
+        
     float angle_acc_x   = atan2(a.acceleration.y, a.acceleration.z) * 180 / PI;
+
+    
     
 
     /* *********** */
