@@ -72,10 +72,7 @@ void loop() {
   /* *********** */
     if (count == FREC_ENVIO) {
       count = 0;
-      /*
-      float to_send[] = {a.acceleration.x, a.acceleration.y, a.acceleration.z,
-                        g.gyro.x, g.gyro.y, g.gyro.z};
-      */
+
       float angle = atan2(a.acceleration.y, a.acceleration.z) * 180 / PI;
       float to_send[] = {angle};
       matlab_send(to_send, 1);
