@@ -10,12 +10,15 @@ void matlab_send(float* datos, uint32_t cantidad);
 
 
 /* MACROS */
-#define T_LOOP_MS 20000
-#define FREC_ENVIO 1
+#define T_LOOP_US   20000
+#define US_2_SEG    1000000.0
+#define FREC_ENVIO  1
 
 /* --- */
 unsigned long t_anterior = 0;
 uint32_t count = 0;
+float angle_gyro_x = 0.0; 
+
 
 void setup() {
   Serial.begin(115200);
@@ -38,46 +41,32 @@ void setup() {
 void loop() {
   unsigned long t_actual = micros();
   
-
-
-
-
-
-  if ((t_actual - t_anterior) >= (T_LOOP_MS)) {    
+  if ((t_actual - t_anterior) >= (T_LOOP_US)) {    
+    float dt = (t_actual - t_anterior) / US_2_SEG;
+    
     t_anterior = t_actual;
     count++;
-    /* ***************** */
     
+    /* ***************** */
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
 
-    /*
-    Serial.print("Acceleration X: ");
-    Serial.print(a.acceleration.x);
-    Serial.print(", Y: ");
-    Serial.print(a.acceleration.y);
-    Serial.print(", Z: ");
-    Serial.print(a.acceleration.z);
-    Serial.println(" m/s^2");
-  
-    Serial.print("Rotation X: ");
-    Serial.print(g.gyro.x);
-    Serial.print(", Y: ");
-    Serial.print(g.gyro.y);
-    Serial.print(", Z: ");
-    Serial.print(g.gyro.z);
-    Serial.println(" rad/s");
-    Serial.println("");
-    */
-  /* *********** */
+
+    float gx_deg        = g.gyro.x * 180.0 / PI + 2;
+    angle_gyro_x        = angle_gyro_x + gx_deg * dt;
+    Serial.println(gx_deg);
+    Serial.println("------------");
+      
+    float angle_acc_x   = atan2(a.acceleration.y, a.acceleration.z) * 180 / PI;
+    
+
+    /* *********** */
     if (count == FREC_ENVIO) {
       count = 0;
-
-      float angle = atan2(a.acceleration.y, a.acceleration.z) * 180 / PI;
-      float to_send[] = {angle};
-      matlab_send(to_send, 1);
-    
+      float to_send[] = {angle_acc_x, angle_gyro_x};
+      matlab_send(to_send, 2);    
     }  
+    
   }
 }
 
