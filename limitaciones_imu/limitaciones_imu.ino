@@ -9,19 +9,21 @@ Adafruit_MPU6050 mpu;
 void matlab_send(float* datos, uint32_t cantidad);
 
 /* MACROS */
-#define T_LOOP_US   20000 // Lazo de 20ms (50 Hz)
+#define T_LOOP_US   20000
 #define US_2_SEG    1000000.0
-#define FREC_ENVIO  1
 
-/* --- Variables originales --- */
+/* Variables */
 unsigned long t_anterior = 0;
 uint32_t count = 0;
 float angle_gyro_x = 0.0; 
 
 int measure_count = 0;
 int N = 100;
-unsigned long delta_total = 0;
+unsigned long delta_i2c = 0;
+unsigned long delta_atan = 0;
 
+
+/* INIT */
 void setup() {
   Serial.begin(115200);
 
@@ -39,6 +41,9 @@ void setup() {
   delay(100);
 }
 
+
+
+/* LOOP */
 void loop() {
   unsigned long t_actual = micros();
   
@@ -47,27 +52,34 @@ void loop() {
     t_anterior = t_actual;
     count++;
     
+    unsigned long t_init = micros();
 
-    unsigned long t_med_init = micros();
     sensors_event_t a, g, temp;
-    mpu.getEvent(&a, &g, &temp);
+    mpu.getEvent(&a, &g, &temp);    
+    unsigned long t_i2c = micros();
 
-    
     float gx_deg = g.gyro.x * 180.0 / PI + 2;
-    //angle_gyro_x = angle_gyro_x + gx_deg * dt;   
-    //float angle_acc_x = atan2(a.acceleration.y, a.acceleration.z) * 180.0 / PI;
-
-    unsigned long t_med_final = micros();
-    delta_total += (t_med_final - t_med_init);
+    angle_gyro_x = angle_gyro_x + gx_deg * dt;
+    float angle_acc_x = atan2(a.acceleration.y, a.acceleration.z) * 180.0 / PI;
+    unsigned long t_final = micros();
+    
+    delta_i2c += (t_i2c - t_init);
+    delta_atan += (t_final - t_i2c);
     measure_count++;
 
     if (measure_count == N) {
-      float tiempo_promedio = (float)delta_total / N;
-      Serial.print("Tiempo: ");
-      Serial.println(tiempo_promedio);
+      Serial.print("Tiempo getEvent: ");
+      Serial.println((float)delta_i2c / N);
+      Serial.print("Tiempo atan: ");
+      Serial.println((float)delta_atan / N);
+      Serial.print("Tiempo TOTAL: ");
+      Serial.println( ((float)delta_i2c + delta_atan) / N );
       
       measure_count = 0;
-      delta_total = 0;
+      delta_i2c = 0;
+      delta_atan = 0;
     }
+    
   }
+    
 }
