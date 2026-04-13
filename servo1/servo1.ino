@@ -10,10 +10,14 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("Evaluación 0 grados");
-  Serial.println("Microseconds");
-  myservo.writeMicroseconds(600);                  
+  Serial.println("3");
+  Serial.println("3");
+  Serial.println("3");
+  //Valores extremos servo 
+  //myservo.writeMicroseconds(600);  -> 0°
+  //myservo.writeMicroseconds(2400); -> 180°
   delay(2000);
+
   Serial.println("Posición");
   myservo.write(0);
   delay(8000);   
@@ -33,4 +37,5 @@ void loop() {
   Serial.println("Posición");
   myservo.write(180);
   delay(5000);           
+
 }
