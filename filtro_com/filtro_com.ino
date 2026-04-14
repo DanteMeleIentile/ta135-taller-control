@@ -27,6 +27,7 @@ unsigned long t_anterior = 0;
 uint32_t count_tx        = 0;
 
 uint32_t count_pulse     = 0;
+float pulse           = 0;
 uint32_t estado_pulse    = 0;
 
 float angle_fc = INITIAL_ANGLE;
@@ -78,11 +79,7 @@ void loop() {
     
 
     /* *********** */
-    if (count_tx == FREC_ENVIO) {
-      count_tx = 0;
-      float to_send[] = {1,1, angle_fc};
-      matlab_send(to_send, 3);    
-    }
+
 
     if (count_pulse >= ENVIO_PULSE) {
       count_pulse = 0;
@@ -90,16 +87,21 @@ void loop() {
       if (estado_pulse == 0) {
         myservo.writeMicroseconds(NEUTRO + OFFSET_SERVO);
         estado_pulse = 1;
+        pulse = (float)OFFSET_SERVO;
       } 
       else if (estado_pulse == 1) {
         myservo.writeMicroseconds(NEUTRO);
-        estado_pulse = 2;
-      } 
-      else {
-        myservo.writeMicroseconds(NEUTRO);
         estado_pulse = 0;
+        pulse = (float)-OFFSET_SERVO;
       }
     }
+
+    if (count_tx == FREC_ENVIO) {
+      count_tx = 0;
+      float to_send[] = {1, pulse , angle_fc};
+      matlab_send(to_send, 3);    
+    }
+    
     
   }
 }

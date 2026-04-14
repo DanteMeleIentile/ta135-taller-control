@@ -16,7 +16,7 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define FREC_ENVIO      1
 #define GYRO_X_OFFSET   +3.18
 #define ALPHA           0.05
-#define INITIAL_ANGLE   0
+#define INITIAL_ANGLE   0 
 
 #define ENVIO_PULSE     100
 #define NEUTRO          1500 //0° según IMU
@@ -77,12 +77,7 @@ void loop() {
     
 
     /* *********** */
-    if (count_tx == FREC_ENVIO) {
-      count_tx = 0;
-      float to_send[] = {1,1, angle_fc};
-      matlab_send(to_send, 3);    
-    }
-
+    
     if (count_pulse >= ENVIO_PULSE) {
       count_pulse = 0;
       
@@ -98,6 +93,12 @@ void loop() {
         myservo.writeMicroseconds(NEUTRO);
         estado_pulse = 0;
       }
+    }
+
+    if (count_tx == FREC_ENVIO) {
+      count_tx = 0;
+      float to_send[] = {1,1, angle_fc};
+      matlab_send(to_send, 3);    
     }
     
   }
