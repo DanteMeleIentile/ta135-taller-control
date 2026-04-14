@@ -18,9 +18,9 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define ALPHA           0.05
 #define INITIAL_ANGLE   0
 
-#define ENVIO_PULSE     200
+#define ENVIO_PULSE     100
 #define NEUTRO          1500 //0° según IMU
-#define OFFSET_SERVO    300 //Valor de inclinación para caracterizar la barra
+#define OFFSET_SERVO    0 //Valor de inclinación para caracterizar la barra
 
 /* --- */
 unsigned long t_anterior = 0;
@@ -30,7 +30,6 @@ uint32_t count_pulse     = 0;
 uint32_t estado_pulse    = 0;
 
 float angle_fc = INITIAL_ANGLE;
-float angle_gyro_x_2 = INITIAL_ANGLE;
 
 Servo myservo; 
 
