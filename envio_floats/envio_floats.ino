@@ -8,10 +8,10 @@ void setup() {
   byte* a_enviar = (byte*)&dato;
 
   #if TIPO_TEST == 0
-    Serial.println()
+    Serial.println();
     Serial.println("--- ENVIO CON WRITE ---");
   #elif TIPO_TEST == 1
-    Serial.println()
+    Serial.println();
     Serial.println("--- ENVIO CON FLUSH ---");
   #endif
 
