@@ -1,49 +1,70 @@
-% --- Configuración de Parámetros ---
-Ts = 20e-3;           % Tiempo de muestreo: 20ms (según T_LOOP_US)
-t_inicial = 2.0;      % Tiempo en segundos para empezar a procesar
-t_final = 10.0;       % Tiempo en segundos para terminar
+%clear all;close all;clc
+clearvars -except out
+Ts = 20e-3;           
+t_inicial = 18 ;      
+t_final = 26;       
 
-% Offsets (ajustar según tu planta real)
-offset_y = 29.1;      % Basado en INITIAL_ANGLE de tu código C++
-offset_u = 0.0;       % Ajustar si el escalón no empieza en cero
+offset_y = 1.75;      
+offset_u = 0.0; 
 
 % --- Extracción y Preprocesamiento de Datos ---
-% Suponiendo que outd3 es un vector con la salida de Simulink
-raw_y = outd3; 
-% Generación de tiempo (t = 0, Ts, 2Ts...)
-t = (0:length(raw_y)-1)' * Ts;
+raw_y = out.d3; 
+
+%TIEMPO
+%t = (0:length(raw_y)-1)' * Ts;
+t = out.tout;
+u = out.d2;
 
 % Filtrado por ventana de tiempo
 indices = (t >= t_inicial) & (t <= t_final);
 y_proc = raw_y(indices) - offset_y;
-% u debe ser el vector de entrada (escalón) con el mismo tamaño que raw_y
-u_proc = u(indices) - offset_u; 
+u_proc = u(indices) + offset_u;
+t_proc = t(indices);
 
-% --- Identificación por Cuadrados Mínimos (Modelo 2do Grado, b2=0) ---
-% Y_obs empieza en k=3 para tener dos muestras previas de y
+% --- Cuadrados Mínimos---
 Y_obs = y_proc(3:end);
 
-% Matriz X: [y(k-1), y(k-2), u(k-1)] -> Dimensión: (N-2) x 3
-X_reg = [y_proc(2:end-1), y_proc(1:end-2), u_proc(2:end-1)];
+X_reg = [y_proc(2:end-1), y_proc(1:end-2), u_proc(3:end)];
 
-% Cálculo de alpha (a1, a2, b1)
 alpha = X_reg \ Y_obs;
 
 a1 = alpha(1);
 a2 = alpha(2);
 b1 = alpha(3);
 
-% --- Conversión a Transferencia Continua ---
-% H(z) = (b1*z^-1) / (1 - a1*z^-1 - a2*z^-2) = b1*z / (z^2 - a1*z - a2)
-num_z = [b1, 0]; 
+
+num_z = [0, 0, b1]; 
 den_z = [1, -a1, -a2];
-Hz = tf(num_z, den_z, Ts);
+Hz = tf(num_z, den_z, Ts)
+
 
 % Conversión a continuo usando ZOH (ideal para escalones)
-Hs = d2c(Hz, 'zoh');
+Hs = d2c(Hz, 'zoh') * 1.3;
+polos = eig(Hs)
 
 % --- Resultados ---
 fprintf('Coeficientes identificados:\n');
 fprintf('a1: %.4f, a2: %.4f, b1: %.4f\n', a1, a2, b1);
 disp('Función de Transferencia Continua:');
 tf(Hs)
+
+figure();
+step(Hs);
+
+%%
+% --- (Asumiendo que ya tienes tu Hs calculado sin ceros y tus variables t_proc, u_proc y y_proc) ---
+
+% --- SIMULACIÓN DEL MODELO CONTINUO CON ENTRADA REAL ---
+% lsim evalúa el modelo continuo (Hs) usando la entrada medida (u_proc) en los instantes (t_proc)
+y_sim_continua = lsim(Hs, u_proc, t_proc);
+
+% --- RESULTADOS Y GRÁFICAS ---
+figure('Name', 'Validación del Modelo Continuo', 'Color', 'w');
+
+% Gráfica 1: Planta Real vs Modelo Continuo
+plot(t_proc, y_proc + offset_y*2, 'b', 'LineWidth', 1.5); hold on;
+plot(t_proc, y_sim_continua, 'r--', 'LineWidth', 1.5);
+grid on;
+title('Respuesta: Datos Reales vs Modelo Continuo H(s)');
+ylabel('Amplitud (Ángulo)');
+legend('Salida Real (Medida)', 'Salida Modelo Continuo', 'Location', 'best');

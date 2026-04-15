@@ -27,7 +27,7 @@ unsigned long t_anterior = 0;
 uint32_t count_tx        = 0;
 
 uint32_t count_pulse     = 0;
-float pulse           = 0;
+float pulse             = 0;
 uint32_t estado_pulse    = 0;
 
 float angle_fc = INITIAL_ANGLE;
@@ -92,7 +92,7 @@ void loop() {
       else if (estado_pulse == 1) {
         myservo.writeMicroseconds(NEUTRO);
         estado_pulse = 0;
-        pulse = (float)-OFFSET_SERVO;
+        pulse = 0;
       }
     }
 
