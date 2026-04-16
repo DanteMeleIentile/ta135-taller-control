@@ -2,7 +2,6 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 #include <math.h>
-#include <Servo.h>
 
 Adafruit_MPU6050 mpu;
 
@@ -14,31 +13,23 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define T_LOOP_US       20000
 #define US_2_SEG        1000000.0
 #define FREC_ENVIO      1
-#define GYRO_X_OFFSET   +3.18
-#define ALPHA           0.05
-#define INITIAL_ANGLE   0 
+#define GYRO_X_OFFSET   +3.04
+#define ALPHA           0.1
+#define INITIAL_ANGLE   0 // Alternativa: 0.08 o 0.09
 
-#define ENVIO_PULSE     100
-#define NEUTRO          1500 //0° según IMU
-#define OFFSET_SERVO    0 //Valor de inclinación para caracterizar la barra
 
 /* --- */
 unsigned long t_anterior = 0;
 uint32_t count_tx        = 0;
 
-uint32_t count_pulse     = 0;
-uint32_t estado_pulse    = 0;
 
 float angle_fc = INITIAL_ANGLE;
-
-Servo myservo; 
+float angle_gyro_x_2 = INITIAL_ANGLE;
 
 /* --- */
 void setup() {
   Serial.begin(115200);
-  myservo.attach(9);
   delay(1000);
-  myservo.writeMicroseconds(1500); 
   
 
   if (!mpu.begin()) {
@@ -63,7 +54,6 @@ void loop() {
     float dt = (t_actual - t_anterior) / US_2_SEG;
     t_anterior = t_actual;
     count_tx++;
-    count_pulse++;
     
     /* ***************** */
     sensors_event_t a, g, temp;
@@ -72,34 +62,20 @@ void loop() {
     float angle_acc_x   = atan2(a.acceleration.y, a.acceleration.z) * 180 / PI;
     
     float gx_deg        = g.gyro.x * 180.0 / PI + GYRO_X_OFFSET;    
+    angle_gyro_x_2      = angle_gyro_x_2 + gx_deg * dt; //Con errors
     float angle_gyro_x  = angle_fc + gx_deg * dt;         //Con corrección 
     angle_fc            = ALPHA * angle_acc_x + (1-ALPHA) * angle_gyro_x;
     
 
     /* *********** */
-    
-    if (count_pulse >= ENVIO_PULSE) {
-      count_pulse = 0;
-      
-      if (estado_pulse == 0) {
-        myservo.writeMicroseconds(NEUTRO + OFFSET_SERVO);
-        estado_pulse = 1;
-      } 
-      else if (estado_pulse == 1) {
-        myservo.writeMicroseconds(NEUTRO);
-        estado_pulse = 2;
-      } 
-      else {
-        myservo.writeMicroseconds(NEUTRO);
-        estado_pulse = 0;
-      }
-    }
+
 
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
-      float to_send[] = {1,1, angle_fc};
+      float to_send[] = {angle_acc_x, angle_gyro_x_2, angle_fc};
       matlab_send(to_send, 3);    
     }
+    
     
   }
 }
