@@ -97,8 +97,8 @@ void loop() {
 
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
-      float to_send[] = {angle_acc_x, angle_fc,1};
-      matlab_send(to_send, 3);    
+      float to_send[] = {angle_fc, pulse, angle_acc_x, gx_deg};
+      matlab_send(to_send, 4);    
     }
     
     

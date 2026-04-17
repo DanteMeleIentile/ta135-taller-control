@@ -1,14 +1,14 @@
 %clear all;close all;clc
 clearvars -except out
 Ts = 20e-3;           
-t_inicial = 18 ;      
-t_final = 26;       
+t_inicial = 60 ;      
+t_final = 80;       
 
-offset_y = 1.75;      
+offset_y = 0.0;      
 offset_u = 0.0; 
 
 % --- Extracción y Preprocesamiento de Datos ---
-raw_y = out.d3; 
+raw_y = out.d1; 
 
 %TIEMPO
 %t = (0:length(raw_y)-1)' * Ts;
@@ -22,9 +22,10 @@ u_proc = u(indices) + offset_u;
 t_proc = t(indices);
 
 % --- Cuadrados Mínimos---
-Y_obs = y_proc(3:end);
+retardo = 4;
+Y_obs = y_proc(2+retardo:end);
 
-X_reg = [y_proc(2:end-1), y_proc(1:end-2), u_proc(3:end)];
+X_reg = [y_proc(2+retardo-1:end-1), y_proc(2+retardo-2:end-2), u_proc(2:end-retardo)];
 
 alpha = X_reg \ Y_obs;
 
@@ -68,3 +69,6 @@ grid on;
 title('Respuesta: Datos Reales vs Modelo Continuo H(s)');
 ylabel('Amplitud (Ángulo)');
 legend('Salida Real (Medida)', 'Salida Modelo Continuo', 'Location', 'best');
+
+
+sa
