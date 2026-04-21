@@ -9,21 +9,27 @@ Adafruit_MPU6050 mpu;
 /* Prototipos */
 void matlab_send(float* datos, uint32_t cantidad);
 
-
 /* MACROS */
 #define T_LOOP_US       20000
 #define US_2_SEG        1000000.0
 #define FREC_ENVIO      1
 #define GYRO_X_OFFSET   +3.04
 #define ALPHA           0.1
-#define INITIAL_ANGLE   0 // Alternativa: 0.08 o 0.09
+#define INITIAL_ANGLE   0 
 
-#define NEUTRO          1520//0° según IMU
+#define NEUTRO          1520 // 0° según IMU
+#define K_SERVO_US_DEG  27.78 // Factor de conversión: 500 us / 18 grados
+
+/* --- Variables Globales del Controlador --- */
+float e_1 = 0.0; // Error en n-1
+float e_2 = 0.0; // Error en n-2
+float u_1 = 0.0; // Acción de control en n-1
+float u_2 = 0.0; // Acción de control en n-2
+float setpoint = 0.0; // Ángulo deseado de la barra en grados
 
 /* --- */
 unsigned long t_anterior = 0;
 uint32_t count_tx        = 0;
-
 float angle_fc = INITIAL_ANGLE;
 
 Servo myservo; 
@@ -33,9 +39,8 @@ void setup() {
   Serial.begin(115200);
   myservo.attach(9);
   delay(1000);
-  myservo.writeMicroseconds(1500); 
+  myservo.writeMicroseconds(NEUTRO); 
   
-
   if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
@@ -50,7 +55,6 @@ void setup() {
   delay(100);
 }
 
-
 void loop() {
   unsigned long t_actual = micros();
   
@@ -59,34 +63,47 @@ void loop() {
     t_anterior = t_actual;
     count_tx++;
     
-    /*** DATOS IMU ***/
+    /*** 1. DATOS IMU ***/
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
-       
+        
     float angle_acc_x   = atan2(a.acceleration.y, a.acceleration.z) * 180 / PI;
-    
     float gx_deg        = g.gyro.x * 180.0 / PI + GYRO_X_OFFSET;    
-    float angle_gyro_x  = angle_fc + gx_deg * dt;         //Con corrección 
+    float angle_gyro_x  = angle_fc + gx_deg * dt; 
     angle_fc            = ALPHA * angle_acc_x + (1-ALPHA) * angle_gyro_x;
     
+    /*** 2. LÓGICA DE CONTROL (Ecuación en Diferencias) ***/
+    float e_0 = setpoint - angle_fc;
+    
+    float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 0.9983 * e_0 - 1.3592 * e_1 + 0.4626 * e_2;
+    
+    // Saturación de la acción virtual (Anti-windup básico)
+    if (u_0 > 18.0) u_0 = 18.0;
+    if (u_0 < -18.0) u_0 = -18.0;
 
-    /* *********** */
+    // Conversión de acción virtual (grados) a acción real (PWM)
+    int pwm_out = NEUTRO + (int)(u_0 * K_SERVO_US_DEG);
 
+    // Saturación física para proteger el servo
+    if (pwm_out > 2000) pwm_out = 2000;
+    if (pwm_out < 1000) pwm_out = 1000;
 
+    myservo.writeMicroseconds(pwm_out);
 
+    /*** 3. ACTUALIZACIÓN DE ESTADOS (Shift) ***/
+    e_2 = e_1;
+    e_1 = e_0;
+    u_2 = u_1;
+    u_1 = u_0;
 
-   
-    /* ENVÍO DE DATOS SIMULINK */
+    /*** 4. ENVÍO DE DATOS SIMULINK ***/
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
-      float to_send[] = {angle_fc, angle_acc_x, gx_deg};
+      float to_send[] = {angle_fc, angle_acc_x, gx_deg, u_0};
       matlab_send(to_send, 4);    
     }
-    
-    
   }
 }
-
 
 void matlab_send(float* datos, uint32_t cantidad) {
   Serial.write("abcd");
