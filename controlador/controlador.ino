@@ -18,17 +18,11 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define ALPHA           0.1
 #define INITIAL_ANGLE   0 // Alternativa: 0.08 o 0.09
 
-#define ENVIO_PULSE     200
 #define NEUTRO          1520//0° según IMU
-#define OFFSET_SERVO    500 //Valor de inclinación para caracterizar la barra
 
 /* --- */
 unsigned long t_anterior = 0;
 uint32_t count_tx        = 0;
-
-uint32_t count_pulse     = 0;
-float pulse             = 0;
-uint32_t estado_pulse    = 0;
 
 float angle_fc = INITIAL_ANGLE;
 
@@ -64,9 +58,8 @@ void loop() {
     float dt = (t_actual - t_anterior) / US_2_SEG;
     t_anterior = t_actual;
     count_tx++;
-    count_pulse++;
     
-    /* ***************** */
+    /*** DATOS IMU ***/
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
        
@@ -80,24 +73,13 @@ void loop() {
     /* *********** */
 
 
-    if (count_pulse >= ENVIO_PULSE) {
-      count_pulse = 0;
-      
-      if (estado_pulse == 0) {
-        myservo.writeMicroseconds(NEUTRO + OFFSET_SERVO);
-        estado_pulse = 1;
-        pulse = (float)OFFSET_SERVO;
-      } 
-      else if (estado_pulse == 1) {
-        myservo.writeMicroseconds(NEUTRO);
-        estado_pulse = 0;
-        pulse = 0;
-      }
-    }
 
+
+   
+    /* ENVÍO DE DATOS SIMULINK */
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
-      float to_send[] = {angle_fc, pulse, angle_acc_x, gx_deg};
+      float to_send[] = {angle_fc, angle_acc_x, gx_deg};
       matlab_send(to_send, 4);    
     }
     
