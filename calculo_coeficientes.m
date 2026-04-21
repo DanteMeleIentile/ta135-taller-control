@@ -1,22 +1,22 @@
 clearvars -except out
 
-angle_stacionario = 18.3;
-K_servo = 18.4/500; % para obtener el comando del servo en angulo
+angle_stacionario = 18.4;
+K_servo = angle_stacionario/500; % para obtener el comando del servo en angulo
 Ts = 20e-3;
 offset_y = 0.3;
-%ventana para minimos cuadrados
-t_inicial = 19.0;
-t_final = 23.0;
+%valores de la ventana
+t_inicial = 10.0;
+t_final = 40.0;
 
 %obtengo los datos
 t_real = out.tout;
 raw_y = out.d1;
 raw_u = out.d2; 
 
-y_proc = raw_y + offset_y; % ofsset para y
+y_proc = raw_y + offset_y; % offset para y
 u_proc = raw_u * K_servo;
 
-% minimos cuadrados
+% Ventana 
 indices = (t_real >= t_inicial) & (t_real <= t_final);
 y_v = y_proc(indices);
 u_v = u_proc(indices);
@@ -24,22 +24,20 @@ t_v = t_real(indices);
 
 % Ecuación: y(n+2) = a1*y(n+1) + a2*y(n) + b1*u(n)
 Y_obs = y_v(3:end); 
-X_reg = [y_v(2:end-1), y_v(1:end-2), u_v(2:end-1)]; % retraso de 1 muestras
-%X_reg = [y_v(2:end-1), y_v(1:end-2), u_v(1:end-2)]; % retraso de 2 muestras
-% lo que hace es poner un cero de fase no minimaen continua para ismular el
+X_reg = [y_v(2:end-1), y_v(1:end-2), u_v(1:end-2)]; % retraso de 2 muestras
+% lo que hace es poner un cero de fase no minimaen continua para simular el
 % restraso de 2 muestras
 
+% Minimos cuadrados
 alpha = X_reg \ Y_obs;
-
 a1 = alpha(1);
 a2 = alpha(2);
 b1 = alpha(3);
 
-% funciones de transferencia
-num_z = [b1, 0]; % retraso 1 muestra
-%num_z = [b1]; % retraso de 2 muestras
+% Funciones de transferencia
+num_z = [b1]; % retraso de 2 muestras
 den_z = [1, -a1, -a2];
-Hz = tf(num_z*angle_stacionario, den_z, Ts); % OJO esto cambiar
+Hz = tf(num_z, den_z, Ts);
 
 Hs = d2c(Hz, 'zoh');
 
@@ -47,6 +45,12 @@ polos_z = roots(den_z);
 polos_s = pole(Hs); 
 
 %polos_s1 = log(polos_z)/Ts %calculo a mano de los polos en continuo para verificar
+
+% Simulamos la respuesta del modelo con la entrada real
+y_sim_z = lsim(Hz, u_v, t_real(indices));
+y_sim_s = lsim(Hs, u_v, t_real(indices));
+
+%% Resultados
 
 %Discreto
 fprintf('Función de Transferencia Discreta H(z):\n');
@@ -63,25 +67,36 @@ disp(polos_s);
 %% Graficos
 
 % Datos medidos
-figure;
-plot(t_real, raw_y, 'b', 'LineWidth', 1.2); 
-hold on; 
-plot(t_real, y_proc, 'r', 'LineWidth', 1.5); 
-grid on;
-legend('y_{raw} (Original)', 'y_{proc} (Con Offset)');
-hold off; 
+% figure;
+% plot(t_real, raw_y, 'b', 'LineWidth', 1.2); 
+% hold on; 
+% plot(t_real, y_proc, 'r', 'LineWidth', 1.5); 
+% grid on;
+%title('Datos sin y con offset');
+% legend('y_{raw} (Original)', 'y_{proc} (Con Offset)');
+% hold off; 
 
-%angulo servo y angulo barra
+% Angulo servo y angulo barra
 figure;
 plot(t_v, y_v,'g', 'LineWidth', 1.5);
 hold on; 
 plot(t_v, u_v, 'r','LineWidth', 1.5);
 grid on;
+title('Ventana utilizado');
 legend('angulo_barra', 'angulo_servo');
 hold off; 
 
-% respusta a escalon discreto y continuo
+% % Respusta a escalon discreto y continuo
+% figure;
+% step(Hs*angle_stacionario);
+% hold on; 
+% step(Hz*angle_stacionario);
+
 figure;
-step(Hs);
-hold on; 
-step(Hz);
+plot(t_real(indices), y_v, 'g', 'LineWidth', 1.5); hold on;
+plot(t_real(indices), y_sim_z, 'r--', 'LineWidth', 1.5);
+plot(t_real(indices), y_sim_s, 'y--', 'LineWidth', 1.5);
+plot(t_real(indices), u_v, 'b', 'LineWidth', 1); 
+title('Planta Real vs. Modelo Identificado');
+legend('Ángulo IMU', 'Modelo (discreto)', 'Modelo (continuo)', 'Entrada (u)');
+grid on;
