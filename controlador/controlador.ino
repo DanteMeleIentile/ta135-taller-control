@@ -76,18 +76,19 @@ void loop() {
     
     /*** CONTROLADOR ***/
     float e_0 = setpoint - angle_fc;
-    float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 3.865 * e_0 - 5.2618 * e_1 + 1.7909 * e_2;
-    //float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 0.9983 * e_0 - 1.3592 * e_1 + 0.4626 * e_2;
     
+    //float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 0.9983 * e_0 - 1.3592 * e_1 + 0.4626 * e_2; // margen de fase de 70 (Lento)
+    //float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 3.865 * e_0 - 5.2618 * e_1 + 1.7909 * e_2; // mf 55 (msa rapido ok)
+    float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 17.264 * e_0 - 23.5032 * e_1 + 7.9993 * e_2; // mf 30 (oscila)
     int pwm_out = NEUTRO + (int)(u_0);
     
     if (pwm_out > NEUTRO + 700) {
       pwm_out = NEUTRO + 700;
-      u_0 = (float)(pwm_out - NEUTRO) / K_SERVO_US_DEG; 
+      u_0 = (float)(pwm_out - NEUTRO); 
     } 
     else if (pwm_out < NEUTRO - 400) {
       pwm_out = NEUTRO - 400;
-      u_0 = (float)(pwm_out - NEUTRO) / K_SERVO_US_DEG;
+      u_0 = (float)(pwm_out - NEUTRO);
     }
     myservo.writeMicroseconds(pwm_out);
     Serial.println(pwm_out);

@@ -15,7 +15,7 @@ p2=-18;
 %p1=-18; p2=-17;
 P = p1*p2/((s-p1)*(s-p2));
 
-kc = db2mag(-0.758);
+kc = db2mag(24);
 cero_c = -19;
 polo_c = -30;
 C=zpk([cero_c, cero_c],[0, polo_c],kc);
@@ -23,9 +23,13 @@ C=zpk([cero_c, cero_c],[0, polo_c],kc);
 L = minreal(C*P);
 
 
-C_dig = c2d(C,Ts,'tustin');
+C_dig = c2d(C,Ts,'tustin')
 
-%% figuras
+S=1/(1+L);
+T=1-S;
+
+
+% figuras
 figure();
 bode(P,optionss);title("Planta")
 
@@ -34,3 +38,6 @@ bode(C,optionss);title("Controlador")
 
 figure();
 bode(L,optionss);title("L")
+
+figure();
+step(T);
