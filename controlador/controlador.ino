@@ -17,10 +17,10 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define ALPHA           0.1
 #define INITIAL_ANGLE   0 
 
-#define NEUTRO          1520 // 0° según IMU
+#define NEUTRO          1520 // +700 y -400
 #define K_SERVO_US_DEG  27.78 // Factor de conversión: 500 us / 18 grados
 
-/* --- Variables Globales del Controlador --- */
+/* --- Vars Controlador --- */
 float e_1 = 0.0; // Error en n-1
 float e_2 = 0.0; // Error en n-2
 float u_1 = 0.0; // Acción de control en n-1
@@ -63,7 +63,7 @@ void loop() {
     t_anterior = t_actual;
     count_tx++;
     
-    /*** 1. DATOS IMU ***/
+    /*** DATOS IMU ***/
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
         
@@ -71,39 +71,43 @@ void loop() {
     float gx_deg        = g.gyro.x * 180.0 / PI + GYRO_X_OFFSET;    
     float angle_gyro_x  = angle_fc + gx_deg * dt; 
     angle_fc            = ALPHA * angle_acc_x + (1-ALPHA) * angle_gyro_x;
+
+
     
-    /*** 2. LÓGICA DE CONTROL (Ecuación en Diferencias) ***/
+    /*** CONTROLADOR ***/
     float e_0 = setpoint - angle_fc;
+    float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 3.865 * e_0 - 5.2618 * e_1 + 1.7909 * e_2;
+    //float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 0.9983 * e_0 - 1.3592 * e_1 + 0.4626 * e_2;
     
-    float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 0.9983 * e_0 - 1.3592 * e_1 + 0.4626 * e_2;
+    int pwm_out = NEUTRO + (int)(u_0);
     
-    // Saturación de la acción virtual (Anti-windup básico)
-    if (u_0 > 18.0) u_0 = 18.0;
-    if (u_0 < -18.0) u_0 = -18.0;
-
-    // Conversión de acción virtual (grados) a acción real (PWM)
-    int pwm_out = NEUTRO + (int)(u_0 * K_SERVO_US_DEG);
-
-    // Saturación física para proteger el servo
-    if (pwm_out > 2000) pwm_out = 2000;
-    if (pwm_out < 1000) pwm_out = 1000;
-
+    if (pwm_out > NEUTRO + 700) {
+      pwm_out = NEUTRO + 700;
+      u_0 = (float)(pwm_out - NEUTRO) / K_SERVO_US_DEG; 
+    } 
+    else if (pwm_out < NEUTRO - 400) {
+      pwm_out = NEUTRO - 400;
+      u_0 = (float)(pwm_out - NEUTRO) / K_SERVO_US_DEG;
+    }
     myservo.writeMicroseconds(pwm_out);
+    Serial.println(pwm_out);
 
-    /*** 3. ACTUALIZACIÓN DE ESTADOS (Shift) ***/
     e_2 = e_1;
     e_1 = e_0;
     u_2 = u_1;
     u_1 = u_0;
 
-    /*** 4. ENVÍO DE DATOS SIMULINK ***/
+    /*** ENVÍO SIMULINK ***/
+    /*
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
       float to_send[] = {angle_fc, angle_acc_x, gx_deg, u_0};
       matlab_send(to_send, 4);    
     }
+    */
   }
 }
+
 
 void matlab_send(float* datos, uint32_t cantidad) {
   Serial.write("abcd");
