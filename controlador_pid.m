@@ -9,20 +9,39 @@ optionss.PhaseMatchingValue=-180;
 optionss.PhaseMatchingFreq=1;
 optionss.Grid='on';
 
+
+
 Ts = 20e-3;
 k_planta = -0.099863;
 p1= 10.14;
-P = k_planta * s/( (s+p1) * (s-p1) );
+P = k_planta * s/( (s+p1) * (s-p1) )
 
-kc = db2mag(24);
-cero_c = 10.14;
-polo_c = -30;
-C=zpk([-cero_c, -cero_c],[0],kc);
+p1_cuad = 10.14^2; % 102.8196
+
+% Forma Canónica Controlable
+A = [0, 1; 
+     p1_cuad, 0];
+     
+B = [0; 
+     1];
+     
+C = [0, k_planta];
+D = 0;
+
+
+sys_fisc = ss(A, B, C, D)
+
+
+% x0 = [posición_inicial; velocidad_inicial]
+x0 = [5*pi/180; 0]; 
+initial(sys_fisc, x0);
+kc = -1%db2mag(50);
+cero_c = p1;
+polo_c = 80;
+C = zpk([-p1, -p1],[0, -polo_c],kc)
 
 L = minreal(C*P);
 
-
-%C_dig = c2d(C,Ts,'tustin')
 
 S=1/(1+L);
 T=1-S;
@@ -30,13 +49,8 @@ T=1-S;
 
 % figuras
 figure();
-bode(P,optionss);title("Planta")
-
-figure();
-bode(C,optionss);title("Controlador")
+bode(C,optionss);title("C")
 
 figure();
 bode(L,optionss);title("L")
 
-%figure();
-%step(T);
