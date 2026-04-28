@@ -10,10 +10,9 @@ optionss.PhaseMatchingFreq=1;
 optionss.Grid='on';
 
 Ts = 20e-3;
-p1=-18.5;
-p2=-18;
-%p1=-18; p2=-17;
-P = p1*p2/((s-p1)*(s-p2));
+k_planta = -0.099863;
+p1= 10.14;
+P = k_planta * s/( (s+p1) * (s-p1) );
 
 kc = db2mag(24);
 cero_c = -19;
