@@ -15,14 +15,14 @@ p1= 10.14;
 P = k_planta * s/( (s+p1) * (s-p1) );
 
 kc = db2mag(24);
-cero_c = -19;
+cero_c = 10.14;
 polo_c = -30;
-C=zpk([cero_c, cero_c],[0, polo_c],kc);
+C=zpk([-cero_c, -cero_c],[0],kc);
 
 L = minreal(C*P);
 
 
-C_dig = c2d(C,Ts,'tustin')
+%C_dig = c2d(C,Ts,'tustin')
 
 S=1/(1+L);
 T=1-S;
@@ -38,5 +38,5 @@ bode(C,optionss);title("Controlador")
 figure();
 bode(L,optionss);title("L")
 
-figure();
-step(T);
+%figure();
+%step(T);
