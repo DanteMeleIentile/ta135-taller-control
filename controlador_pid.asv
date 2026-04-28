@@ -35,7 +35,7 @@ sys_fisc = ss(A, B, C, D)
 % x0 = [posición_inicial; velocidad_inicial]
 x0 = [5*pi/180; 0]; 
 initial(sys_fisc, x0);
-kc = -db2mag(56);
+kc = -db2mag(46);
 %kc = -1;
 cero_c = p1;
 polo_c = 80;
@@ -54,11 +54,6 @@ bode(C,optionss);title("C")
 
 figure();
 bode(L,optionss);title("L")
-
-
-c_dig = c2d(C, Ts, 'tustin')
-
-
 
 % 
 % % 2. Cálculo de las constantes del PID
