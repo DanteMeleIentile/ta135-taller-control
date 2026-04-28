@@ -3,8 +3,8 @@
 #include <Wire.h>
 #include <math.h>
 #include <Servo.h>
+#include <NewPing.h>
 
-Adafruit_MPU6050 mpu;
 
 /* Prototipos */
 void matlab_send(float* datos, uint32_t cantidad);
@@ -20,6 +20,9 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define NEUTRO          1520 // +700 y -400
 #define K_SERVO_US_DEG  27.78 // Factor de conversión: 500 us / 18 grados
 
+#define ENVIO_PULSE     40
+#define OFFSET_SERVO    -100
+
 /* --- Vars Controlador --- */
 float e_1 = 0.0; // Error en n-1
 float e_2 = 0.0; // Error en n-2
@@ -28,11 +31,22 @@ float u_2 = 0.0; // Acción de control en n-2
 float setpoint = 0.0; // Ángulo deseado de la barra en grados
 
 /* --- */
+Adafruit_MPU6050 mpu;
 unsigned long t_anterior = 0;
 uint32_t count_tx        = 0;
 float angle_fc = INITIAL_ANGLE;
 
+/* --- Vars SR04 --- */
+const int TRIGGER_PIN = 6;
+const int ECHO_PIN = 7;
+const int MAX_DISTANCE = 450;
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
+
+/* --- Vars Servo --- */
 Servo myservo; 
+uint32_t count_pulse        = 0;
+uint32_t estado_pulse    = 0;
+float pulse             = 0;
 
 /* --- */
 void setup() {
@@ -62,6 +76,7 @@ void loop() {
     float dt = (t_actual - t_anterior) / US_2_SEG;
     t_anterior = t_actual;
     count_tx++;
+    count_pulse++;
     
     /*** DATOS IMU ***/
     sensors_event_t a, g, temp;
@@ -73,39 +88,44 @@ void loop() {
     angle_fc            = ALPHA * angle_acc_x + (1-ALPHA) * angle_gyro_x;
 
 
+
+
+    /*** DATOS SR04 ***/
+    unsigned long time_ping = sonar.ping(); 
+    float dist = time_ping / (2.0 * 29.287);
     
     /*** CONTROLADOR ***/
-    float e_0 = setpoint - angle_fc;
-    
-    //float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 0.9983 * e_0 - 1.3592 * e_1 + 0.4626 * e_2; // margen de fase de 70 (Lento)
-    //float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 3.865 * e_0 - 5.2618 * e_1 + 1.7909 * e_2; // mf 55 (msa rapido ok)
-    float u_0 = 1.5385 * u_1 - 0.5385 * u_2 + 17.264 * e_0 - 23.5032 * e_1 + 7.9993 * e_2; // mf 30 (oscila)
-    int pwm_out = NEUTRO + (int)(u_0);
-    
-    if (pwm_out > NEUTRO + 700) {
-      pwm_out = NEUTRO + 700;
-      u_0 = (float)(pwm_out - NEUTRO); 
-    } 
-    else if (pwm_out < NEUTRO - 400) {
-      pwm_out = NEUTRO - 400;
-      u_0 = (float)(pwm_out - NEUTRO);
+
+
+
+
+    if (count_pulse >= ENVIO_PULSE) {
+      count_pulse = 0;
+      
+      if (estado_pulse == 0) {
+        myservo.writeMicroseconds(NEUTRO + OFFSET_SERVO); //Horario
+        estado_pulse = 1;
+        pulse = (float)OFFSET_SERVO;
+      } 
+      else if (estado_pulse == 1) {
+        myservo.writeMicroseconds(NEUTRO - OFFSET_SERVO + 20); //Anti-Horario
+        estado_pulse = 0;
+        pulse = (float)(- OFFSET_SERVO + 20);
+      }
     }
-    myservo.writeMicroseconds(pwm_out);
-    Serial.println(pwm_out);
 
-    e_2 = e_1;
-    e_1 = e_0;
-    u_2 = u_1;
-    u_1 = u_0;
 
+
+  
     /*** ENVÍO SIMULINK ***/
-    /*
+    
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
-      float to_send[] = {angle_fc, angle_acc_x, gx_deg, u_0};
-      matlab_send(to_send, 4);    
+      float to_send[] = {angle_fc, dist, pulse};
+      matlab_send(to_send, 3);    
     }
-    */
+    
+    
   }
 }
 
