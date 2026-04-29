@@ -80,3 +80,4 @@ c_dig = c2d(C, Ts, 'tustin')
 % disp('Función de transferencia del PID resultante:');
 % C_pid
 
+% $$u[k] = u[k-1] - 694.94 e[k] + 567.00 e[k-1]$$

@@ -66,3 +66,5 @@ float leer_angulo_sensor() {
 void aplicar_pwm_motor(float control) {
   // Lógica para dirección y analogWrite()
 }
+
+$$u[k] = u[k-1] - 694.94 e[k] + 567.00 e[k-1]$$
