@@ -35,7 +35,7 @@ sys_fisc = ss(A, B, C, D)
 % x0 = [posición_inicial; velocidad_inicial]
 x0 = [5*pi/180; 0]; 
 initial(sys_fisc, x0);
-kc = -db2mag(56);
+kc = -db2mag(50);
 %kc = -1;
 cero_c = p1;
 polo_c = 80;
