@@ -1,0 +1,25 @@
+
+
+1era itereacion, rapido
+$$\rightarrow \mathbf{K_p = -630.96}$$
+
+$$\rightarrow \mathbf{K_i = -6397.93}$$
+
+
+anterior, funcionan muy rapid
+$$K_p = -316.23$$
+
+$$K_i = -3206.5722$$
+
+
+
+Mejor:
+
+Kp = -316
+ki = -1580
+
+ 
+Ultimo probado video
+$$K_p = -316.23$$
+
+$$K_i = -2100.5$$

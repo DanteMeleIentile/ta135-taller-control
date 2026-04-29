@@ -35,14 +35,13 @@ sys_fisc = ss(A, B, C, D)
 % x0 = [posición_inicial; velocidad_inicial]
 x0 = [5*pi/180; 0]; 
 initial(sys_fisc, x0);
-kc = -db2mag(50);
+kc = -db2mag(45);
 %kc = -1;
 cero_c = p1;
 polo_c = 80;
-C = zpk([-p1],[0],kc)
+C = zpk([-5],[0],kc)
 
 L = minreal(C*P);
-
 
 S=1/(1+L);
 T=1-S;
