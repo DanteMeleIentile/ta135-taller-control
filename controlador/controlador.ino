@@ -93,12 +93,14 @@ void loop() {
     /*** DATOS SR04 ***/
     unsigned long time_ping = sonar.ping(); 
     float dist = time_ping / (2.0 * 29.287);
-    Serial.println(dist);
+    Serial.print(angle_fc);
+    Serial.print("   ");
+    Serial.println(  dist);
     
     /*** CONTROLADOR ***/
 
 
-
+    myservo.writeMicroseconds(NEUTRO);
     count_pulse = 0;
     if (count_pulse >= ENVIO_PULSE) {
       count_pulse = 0;
