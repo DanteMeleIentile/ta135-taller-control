@@ -21,7 +21,7 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define K_SERVO_US_DEG  27.78 // Factor de conversión: 500 us / 18 grados
 
 #define ENVIO_PULSE     40
-#define OFFSET_SERVO    -100
+#define OFFSET_SERVO    100
 
 /* --- Vars Controlador --- */
 float e_1 = 0.0; // Error en n-1
@@ -66,7 +66,7 @@ void setup() {
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_44_HZ);
-  delay(100);
+  delay(5000);
 }
 
 void loop() {
@@ -103,14 +103,15 @@ void loop() {
       count_pulse = 0;
       
       if (estado_pulse == 0) {
-        myservo.writeMicroseconds(NEUTRO + OFFSET_SERVO); //Horario
+        myservo.writeMicroseconds(NEUTRO + OFFSET_SERVO + 30); //Anti-Horario
         estado_pulse = 1;
-        pulse = (float)OFFSET_SERVO;
+        pulse = (float)(OFFSET_SERVO + 30);
+        
       } 
       else if (estado_pulse == 1) {
-        myservo.writeMicroseconds(NEUTRO - OFFSET_SERVO + 20); //Anti-Horario
+        myservo.writeMicroseconds(NEUTRO - OFFSET_SERVO - 10); //Horario
         estado_pulse = 0;
-        pulse = (float)(- OFFSET_SERVO + 20);
+        pulse = (float)(- OFFSET_SERVO - 10);
       }
     }
 

@@ -27,5 +27,5 @@ title('Datos sin y con offset');
 legend('y_{raw} (Original)', 'y_{proc} (Con Offset)');
 hold off;
 
-
+%save('nombre.mat')
 
