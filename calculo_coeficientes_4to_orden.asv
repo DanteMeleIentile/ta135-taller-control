@@ -1,0 +1,77 @@
+clearvars -except out; close all;
+
+%% CONFIGURACIÓN ---
+angle_stacionario = 18.4;
+K_servo = angle_stacionario/500; % Comando virtual (grados)
+Ts = 20e-3;
+offset_y = 0.3; % Ajuste de la posición inicial del carro
+
+% Ventana de tiempo
+t_inicial = 0.5;
+t_final = 8;
+
+%% EXTRACCIÓN Y PREPROCESAMIENTO ---
+t_real = out.tout;
+y_raw = out.dist;  % Posición del carro
+u_raw = out.servo; % PWM del servo
+
+% y_proc = raw_y + offset_y; 
+% u_proc = raw_u * K_servo;
+
+indices = (t_real >= t_inicial) & (t_real <= t_final);
+y_v = y_raw(indices);
+u_v = u_raw(indices);
+t_v = t_real(indices);
+
+%% MÍNIMOS CUADRADOS 
+
+%y(n) = a1*y(n-1) + a2*y(n-2) + a3*y(n-3) + a4*y(n-4) + b1*u(n)
+Y_obs = y_v(5:end); 
+X_reg = [y_v(4:end-1), y_v(3:end-2), y_v(2:end-3), y_v(1:end-4), u_v(5:end)]; 
+
+alpha = X_reg \ Y_obs;
+
+a1 = alpha(1); a2 = alpha(2); a3 = alpha(3); a4 = alpha(4); b1 = alpha(5);
+
+% Transferencias
+num_z = b1; 
+den_z = [1, -a1, -a2, -a3, -a4];
+Hz = tf(num_z, den_z, Ts);
+
+Hs = d2c(Hz, 'tustin'); 
+
+polos_z = roots(den_z);
+polos_s = pole(Hs); 
+
+%% --- RESULTADOS ---
+fprintf('\nFunción de Transferencia Discreta H(z):\n');
+tf(Hz)
+fprintf('Polos discretos (Z):\n');
+disp(polos_z);
+
+fprintf('\nFunción de Transferencia Continua H(s):\n');
+tf(Hs)
+fprintf('Polos continuos (S):\n');
+disp(polos_s);
+
+% Angulo servo y angulo barra
+figure;
+plot(t_v, y_v,'g', 'LineWidth', 1.5);
+hold on; 
+plot(t_v, u_v, 'r','LineWidth', 1.5);
+grid on;
+title('Ventana utilizado');
+legend('pos_carrito', 'angulo_servo');
+hold off; 
+
+%% --- GRÁFICOS ---
+y_sim_z = lsim(Hz, u_v, t_v);
+
+figure('Name', 'Comparación Planta vs Modelo');
+plot(t_v, y_v, 'g', 'LineWidth', 2); hold on;
+plot(t_v, y_sim_z, 'r--', 'LineWidth', 1.5);
+plot(t_v, u_v, 'b', 'LineWidth', 1); 
+title('Planta Real vs. Modelo Identificado de 4to Orden');
+xlabel('Tiempo [s]'); ylabel('Posición / Ángulo');
+legend('Posición Real Carro', 'Modelo 4to Orden', 'Entrada (u)');
+grid on;
