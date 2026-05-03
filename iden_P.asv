@@ -1,0 +1,39 @@
+close all;clc
+clearvars -except out
+
+t_inicial       = 0.8;
+t_final         = 1.56;
+Ts              = 20e-3;
+offset_dist_2   = 2; 
+
+
+%t_real_2        = out.tout;
+%raw_ang_2       = out.angle_barra;
+%raw_u_2         = out.servo; 
+%raw_dist_2      = out.dist;
+
+s=tf('s');
+p1  = -23
+p2  = -22
+k_b = +0.03897;
+H_barra = p1*p2*k_b /((s-p1)*(s-p2));
+
+p3  = 2;
+p4  = -12;
+k_c = -0.9; 
+H_carrito = p3*p4*k_c /((s-p3)*(s-p4));
+
+H_total = H_barra * H_carrito
+
+% 
+% % dist_simulada_total = lsim(H_total, servo, t);
+% % 
+% % figure;
+% % plot(t, dist - 4, 'g', 'LineWidth', 1.5); hold on;
+% % plot(t, dist_simulada_total, 'r--', 'LineWidth', 1.5);
+% % title('Planta Completa (4 Polos): Distancia Real vs Simulada');
+% % xlabel('Tiempo [s]');
+% % ylabel('Distancia [m]');
+% % legend('Distancia Real (Sensor)', 'Distancia Simulada (Modelo)');
+% % grid on;
+% % hold off;

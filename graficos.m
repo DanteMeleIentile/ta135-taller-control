@@ -4,8 +4,8 @@ clearvars -except out;
 
 
 %valores de la ventana
-t_inicial   = 0;
-t_final     = 1.6;
+t_inicial   = 0.5;
+t_final     = 1.56;
 Ts          = 20e-3;
 
 %obtengo los datos
@@ -24,8 +24,8 @@ dist        = raw_dist(indices);
 figure;
 plot(t, angle_barra, 'b', 'LineWidth', 1.2); 
 hold on; 
-%plot(t_real, raw_servo, 'r', 'LineWidth', 1.5); 
-%hold on;
+plot(t_real, raw_servo*0.03, 'r', 'LineWidth', 1.5); 
+hold on;
 plot(t, dist, 'g', 'LineWidth', 1.5); 
 grid on;
 hold off;
