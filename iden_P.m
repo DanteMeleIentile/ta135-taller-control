@@ -2,7 +2,7 @@ close all;clc
 clearvars -except out
 
 t_inicial       = 0;
-t_final         = 1.6;
+t_final         = 5;
 Ts              = 20e-3;
 
 
@@ -45,11 +45,14 @@ H_total = H_barra * H_carrito
 dist_simulada_total = lsim(H_total, u_1, t_v_1);
 
 figure;
-plot(t_v_1, dist_1 - 4, 'g', 'LineWidth', 1.5); hold on;
-plot(t_v_1, dist_simulada_total, 'r--', 'LineWidth', 1.5);
+plot(t_v_1, (dist_1 - 4), 'g', 'LineWidth', 1.5); hold on;
+plot(t_v_1, dist_simulada_total , 'r--', 'LineWidth', 1.5); hold on;
+plot(t_v_1, u_1 , 'b', 'LineWidth', 1.5); 
 title('Planta Completa (4 Polos): Distancia Real vs Simulada');
 xlabel('Tiempo [s]');
 ylabel('Distancia [m]');
+ylim([-5, 20]);
+xlim([0, 2.5]);
 legend('Distancia Real (Sensor)', 'Distancia Simulada (Modelo)');
 grid on;
 hold off;
