@@ -12,7 +12,7 @@ void matlab_send(float* datos, uint32_t cantidad);
 /* MACROS */
 #define T_LOOP_US       20000
 #define US_2_SEG        1000000.0
-#define FREC_ENVIO      1
+#define FREC_ENVIO      100000
 #define GYRO_X_OFFSET   +3.04
 #define ALPHA           0.1
 #define INITIAL_ANGLE   0 
@@ -112,7 +112,9 @@ void loop() {
     }
     
     myservo.writeMicroseconds(pwm_out);
-    Serial.println(pwm_out);
+    Serial.print(pwm_out);
+    Serial.print( " ----");
+    Serial.println(u_0);
 
 
     /*
