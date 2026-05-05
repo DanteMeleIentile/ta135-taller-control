@@ -23,6 +23,9 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define ENVIO_PULSE     40
 #define OFFSET_SERVO    100
 
+/* ---  MACROS CONTROLADOR --- */
+#define K_P             66.8
+
 /* --- Vars Controlador --- */
 float e_1 = 0.0; // Error en n-1
 float e_2 = 0.0; // Error en n-2
