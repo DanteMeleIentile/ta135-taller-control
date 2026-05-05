@@ -37,19 +37,18 @@ optionss.PhaseMatchingValue=-180;
 optionss.PhaseMatchingFreq=1;
 optionss.Grid='on';
 
-figure();
-bode(L,optionss);title("L")
+%figure();
+%bode(L,optionss);title("L")
 
 % ---------- AJUSTE MANUAL DE GANANANCIAS DEL PId = Kp + Ki * 1/s + Kd * s;
-
 k_s = pid(C)
-C_pid = (k_s.Kp - 300) + (k_s.Ki+300) /s + (k_s.Kd+3)*s/(k_s.Tf * s+1 )
+C_pid = (k_s.Kp + 80) + (k_s.Ki-500) /s + (k_s.Kd+5)*s/(k_s.Tf * s+1 )
 
 % ----- CONTROL DIGITAL (para simulink)----- %
 c_dig = c2d(C_pid, Ts, 'tustin')
 simu = pid(C_pid)
 
-% últ probado en clase 28/04/26: %C_pid = (-316) + (-2100) /s + (0)*s/(k_s.Tf * s+1 ) 
+
 
 %% POSIBLES RESPUESTAS 
 % 
@@ -60,3 +59,6 @@ simu = pid(C_pid)
 % Caso 2) Si la estabilización es muy variable
 % 	Diagnostico: Kd es muy grande y no se asjuta de forma estable
 % 	Respuesta: Bajar el Kd
+
+
+% últ probado en clase 28/04/26: %C_pid = (-316) + (-2100) /s + (0)*s/(k_s.Tf * s+1 ) 
