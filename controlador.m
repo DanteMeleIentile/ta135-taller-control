@@ -50,7 +50,7 @@ H_total = H_barra * H_carrito
 
 k = db2mag(36.5);
 
-C_k = k;
+C_k = 36%k;
 
 L = C_k * H_total;
 
@@ -73,3 +73,9 @@ ylabel('Distancia [m]');
 legend('Distancia Real (Sensor)', 'Distancia Simulada (Modelo)');
 grid on;
 hold off;
+%%
+T_cerrado = feedback(L, 1);
+figure;
+step(T_cerrado);
+title('Respuesta del Carrito con el nuevo Controlador P');
+grid on;

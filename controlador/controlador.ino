@@ -20,18 +20,18 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define NEUTRO          1520 // +700 y -400
 #define K_SERVO_US_DEG  27.78 // Factor de conversión: 500 us / 18 grados
 
-#define ENVIO_PULSE     40
+#define ENVIO_PULSE     50*20
 #define OFFSET_SERVO    100
 
 /* ---  MACROS CONTROLADOR --- */
-#define K_P             66.8
+#define K_P             15
 
 /* --- Vars Controlador --- */
 float e_1 = 0.0; // Error en n-1
 float e_2 = 0.0; // Error en n-2
 float u_1 = 0.0; // Acción de control en n-1
 float u_2 = 0.0; // Acción de control en n-2
-float setpoint = 15.5; // Ángulo deseado de la barra en grados
+float setpoint = 15.5;
 
 /* --- */
 Adafruit_MPU6050 mpu;
@@ -113,27 +113,28 @@ void loop() {
     
     myservo.writeMicroseconds(pwm_out);
     Serial.print(pwm_out);
-    Serial.print( " ----");
-    Serial.println(u_0);
+    Serial.print(" ----");
+    Serial.print(u_0);
+    Serial.print(" ---- dist: ");
+    Serial.print(dist);
+    Serial.print(" ---- setpoint: ");
+    Serial.println(setpoint);
+    
 
 
-    /*
+    
     if (count_pulse >= ENVIO_PULSE) {
       count_pulse = 0;
       
       if (estado_pulse == 0) {
-        myservo.writeMicroseconds(NEUTRO + OFFSET_SERVO + 30); //Anti-Horario
+        setpoint = 20;
         estado_pulse = 1;
-        pulse = (float)(OFFSET_SERVO + 30);
-        
       } 
       else if (estado_pulse == 1) {
-        myservo.writeMicroseconds(NEUTRO - OFFSET_SERVO - 10); //Horario
+        setpoint = 15.5;
         estado_pulse = 0;
-        pulse = (float)(- OFFSET_SERVO - 10);
       }
     }
-    */
 
 
 
