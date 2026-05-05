@@ -20,8 +20,8 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define NEUTRO          1520 // +700 y -400
 #define K_SERVO_US_DEG  27.78 // Factor de conversión: 500 us / 18 grados
 
-#define ENVIO_PULSE     50
-#define OFFSET_SERVO    300
+#define ENVIO_PULSE     50 * 3
+#define OFFSET_SERVO    100
 
 /* --- Vars Controlador --- */
 
@@ -92,8 +92,7 @@ void loop() {
     float gx_deg        = g.gyro.x * 180.0 / PI + GYRO_X_OFFSET;    
     float angle_gyro_x  = angle_fc + gx_deg * dt; 
     angle_fc            = ALPHA * angle_acc_x + (1-ALPHA) * angle_gyro_x;
-
-
+    
     if (count_pulse >= ENVIO_PULSE) {
       count_pulse = 0;
       if (estado_pulse == 0) {
