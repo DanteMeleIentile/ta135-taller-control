@@ -28,7 +28,7 @@ float e_1 = 0.0; // Error en n-1
 float e_2 = 0.0; // Error en n-2
 float u_1 = 0.0; // Acción de control en n-1
 float u_2 = 0.0; // Acción de control en n-2
-float setpoint = 0.0; // Ángulo deseado de la barra en grados
+float setpoint = 15.5; // Ángulo deseado de la barra en grados
 
 /* --- */
 Adafruit_MPU6050 mpu;
@@ -44,8 +44,8 @@ NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
 /* --- Vars Servo --- */
 Servo myservo; 
-uint32_t count_pulse        = 0;
-uint32_t estado_pulse    = 0;
+uint32_t count_pulse    = 0;
+uint32_t estado_pulse   = 0;
 float pulse             = 0;
 
 /* --- */
@@ -88,17 +88,31 @@ void loop() {
     angle_fc            = ALPHA * angle_acc_x + (1-ALPHA) * angle_gyro_x;
 
 
-
-
     /*** DATOS SR04 ***/
     unsigned long time_ping = sonar.ping(); 
     float dist = time_ping / (2.0 * 29.287);
+
     
     /*** CONTROLADOR ***/
+    float e_0 = setpoint - dist;
+    float u_0 = K_P * e_0; 
+    
+    int pwm_out = NEUTRO + (int)(u_0);
+    
+    if (pwm_out > NEUTRO + 700) {
+      pwm_out = NEUTRO + 700;
+      u_0 = (float)(pwm_out - NEUTRO); 
+    } 
+    else if (pwm_out < NEUTRO - 400) {
+      pwm_out = NEUTRO - 400;
+      u_0 = (float)(pwm_out - NEUTRO);
+    }
+    
+    myservo.writeMicroseconds(pwm_out);
+    Serial.println(pwm_out);
 
 
-
-
+    /*
     if (count_pulse >= ENVIO_PULSE) {
       count_pulse = 0;
       
@@ -114,6 +128,7 @@ void loop() {
         pulse = (float)(- OFFSET_SERVO - 10);
       }
     }
+    */
 
 
 
