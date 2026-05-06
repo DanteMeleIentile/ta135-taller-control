@@ -1,3 +1,4 @@
+%% SOLUCIÓN APROBADA: KP = 310; KI = 1900; KD = 2,5
 clear all;close all;clc
 s=tf('s');
 
@@ -42,11 +43,12 @@ optionss.Grid='on';
 
 % ---------- AJUSTE MANUAL DE GANANANCIAS DEL PId = Kp + Ki * 1/s + Kd * s;
 k_s = pid(C)
-C_pid = (k_s.Kp + 80) + (k_s.Ki-500) /s + (k_s.Kd+5)*s/(k_s.Tf * s+1 )
+C_pid = (k_s.Kp - 130) + (k_s.Ki - 800) /s + (k_s.Kd+5i)*s/(k_s.Tf * s+1 )
 
 % ----- CONTROL DIGITAL (para simulink)----- %
 c_dig = c2d(C_pid, Ts, 'tustin')
 simu = pid(C_pid)
+
 
 
 
