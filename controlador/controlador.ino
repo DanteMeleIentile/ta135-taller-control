@@ -34,8 +34,8 @@ const float Ad[2][2] = {
 
 const float Bd[2] = {0.0031, 0.2667};  
 
-const float L1 = 0.22992;
-const float L2 = -4.1872; 
+const float L1 = 0.27;
+const float L2 = -5; 
 
 float x1_hat = 0.0; 
 float x2_hat = 0.0; 

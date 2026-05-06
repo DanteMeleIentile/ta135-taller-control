@@ -16,30 +16,6 @@ P = k_planta*p1*p2/((s-p1)*(s-p2));
 
 A = [0,         1;
     -(p1*p2), p1+p2];
-disp(A);
-
-B = [       0;
-    k_planta * p1 * p2];
-disp(B);
-
-clear all;close all;clc
-s=tf('s');
-
-optionss=bodeoptions;
-optionss.MagVisible='on';
-optionss.PhaseMatching='on';
-optionss.PhaseMatchingValue=-180;
-optionss.PhaseMatchingFreq=1;
-optionss.Grid='on';
-
-Ts = 20e-3;
-p1=-22;
-p2=-23;
-k_planta = 0.04133; 
-P = k_planta*p1*p2/((s-p1)*(s-p2));
-
-A = [0,         1;
-    -(p1*p2), p1+p2];
 B = [       0;
     k_planta * p1 * p2];
 C = [1, 0]; 
@@ -57,7 +33,7 @@ disp(Ad2);
 disp(Bd2);
 
 l1_cont = -30; 
-l2_cont = -35; 
+l2_cont = -40; 
 l1_z = exp(l1_cont * Ts)
 l2_z = exp(l2_cont * Ts)
 
