@@ -20,7 +20,7 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define NEUTRO          1520 // +700 y -400
 #define K_SERVO_US_DEG  27.78 // Factor de conversión: 500 us / 18 grados
 
-#define ENVIO_PULSE     50 * 2
+#define ENVIO_PULSE     50 * 3
 #define OFFSET_SERVO    100
 
 /* --- Vars Controlador --- */
@@ -37,11 +37,10 @@ const float Ad[3][3] = {
 const float Bd[3] = {0.0020, 0.1811, 0};  
 
 const float L[3][2] = {
-  {0.4063,  0.0380},
-  {-4.287,  0.0016},
-  {0.0386,  0.0231},
+  {0.4054,  0.0372},
+  {-4.289,  0.0029},
+  {0.0373,  0.0051},
 };
-
 
 float x1_hat = 0.0; 
 float x2_hat = 0.0; 
@@ -117,21 +116,20 @@ void loop() {
         estado_pulse = 0;
       }
     }
-
     
     float error_angle = angle_fc - x1_hat;
     float error_w     = gx_deg   - (x2_hat + x3_hat);
     
     
-    float x1_hat_k_1 = (Ad[0][0] * x1_hat) + (Ad[0][1] * x2_hat) + (Ad[0][3] * x3_hat)
+    float x1_hat_k_1 = (Ad[0][0] * x1_hat) + (Ad[0][1] * x2_hat) + (Ad[0][2] * x3_hat)
                       + (L[0][0] * error_angle) + (L[0][1] * error_w)
                       + (Bd[0] * pulse);
 
-    float x2_hat_k_1 = (Ad[1][0] * x1_hat) + (Ad[1][1] * x2_hat) + (Ad[1][3] * x3_hat)
+    float x2_hat_k_1 = (Ad[1][0] * x1_hat) + (Ad[1][1] * x2_hat) + (Ad[1][2] * x3_hat)
                   + (L[1][0] * error_angle) + (L[1][1] * error_w)
                   + (Bd[1] * pulse);
 
-    float x3_hat_k_1 = (Ad[2][0] * x1_hat) + (Ad[2][1] * x2_hat) + (Ad[2][3] * x3_hat)
+    float x3_hat_k_1 = (Ad[2][0] * x1_hat) + (Ad[2][1] * x2_hat) + (Ad[2][2] * x3_hat)
                       + (L[2][0] * error_angle) + (L[2][1] * error_w)
                       + (Bd[2] * pulse);
     
@@ -144,8 +142,8 @@ void loop() {
     /*** ENVÍO SIMULINK ***/
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
-      float to_send[] = {angle_fc, x1_hat, gx_deg, x2_hat, 20, x3_hat};
-      matlab_send(to_send, 4);    
+      float to_send[] = {angle_fc, x1_hat, gx_deg, x2_hat, 0, x3_hat};
+      matlab_send(to_send, 6);    
     }
   }
 }

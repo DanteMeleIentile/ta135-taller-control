@@ -40,16 +40,12 @@ disp(Bd2);
 
 l1_cont = -30; 
 l2_cont = -40; 
-l3_cont = -1; 
+l3_cont = -0.1; 
 l1_z = exp(l1_cont * Ts)
 l2_z = exp(l2_cont * Ts)
 l3_z = exp(l3_cont * Ts)
 
-L_d = place(Ad2', Cd2', [l1_z, l2_z, l3_z])';
+L_d = place(Ad2', Cd2', [l1_z, l2_z, l3_z])'
 l1_d = L_d(1);
 l2_d = L_d(2);
 l3_d = L_d(3);
-
-disp(['l1_d = ', num2str(l1_d)]);
-disp(['l2_d = ', num2str(l2_d)]);
-disp(['l3_d = ', num2str(l3_d)]);
