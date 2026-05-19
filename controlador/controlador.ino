@@ -28,14 +28,15 @@ void matlab_send(float* datos, uint32_t cantidad);
 
 /* --- Vars Observador --- */
 const float Ad[2][2] = {
-  {0.9246,    0.0128},
-  {-6.4529,    0.3507}
+  {0.9514,    0.0141},
+  {-4.3128,   0.4581}
 };
 
-const float Bd[2] = {0.0031, 0.2667};  
+    
+const float Bd[2] = {0.0020, 0.1811};  
 
-const float L1 = 0.27;
-const float L2 = -5; 
+const float L1 = 0.41;
+const float L2 = -4.37; 
 
 float x1_hat = 0.0; 
 float x2_hat = 0.0; 
