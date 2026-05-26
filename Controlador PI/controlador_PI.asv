@@ -1,0 +1,84 @@
+%save('datosX.mat', 'raw_ang_X', 'raw_u_X', 'raw_dist_X', 'indices_X', 't_v_X', 'ang_X', 'u_X', 'dist_X');
+close all;clc
+clearvars -except out
+
+optionss=bodeoptions;
+optionss.MagVisible='on';
+optionss.PhaseMatching='on';
+optionss.PhaseMatchingValue=-180;
+optionss.PhaseMatchingFreq=1;
+optionss.Grid='on';
+
+Ts  = 20e-3;
+s=tf('s');
+p1  = -18
+p2  = -17
+k_b = +0.04;
+H_barra = p1*p2*k_b /((s-p1)*(s-p2));
+
+p3  = 0;
+p4  = -3.5;
+k_c = 21; 
+H_carrito = k_c /((s-p3)*(s-p4));
+
+H_total = H_barra * H_carrito
+
+
+k_p = 18.5
+k_i = 1.8
+C = k_p * (s + k_i/k_p)/(s)
+    
+C_dig = c2d(C, Ts, 'tustin');
+[b, a] = tfdata(C_dig, 'v');
+fprintf('float u_0 = %.4f*u_1 + %.4f*e_0 + %.4f*e_1;\n', -a(2), b(1), b(2));
+
+L = C * H_total;
+
+
+%figure();
+%bode(L);
+%figure();
+%rlocus(L);
+
+
+%% DATOS REALES
+% t_real      = out.tout;
+% t_real      = t_real - 4.3; 
+% real_d      = out.real_d - 15; 
+% real_ref    = out.real_ref - 15;
+% real_u      = out.real_u;
+
+
+disp('Corriendo simulación...');
+simOut = sim('sistema_PI'); 
+
+
+sim_time    = simOut.sim_time; 
+sim_d       = simOut.sim_d;
+sim_ref     = simOut.sim_ref;
+sim_u       = simOut.sim_u;
+
+figure;
+plot(t_real, real_ref, 'b-.', 'LineWidth', 1.5); hold on;
+plot(t_real, real_d, 'g', 'LineWidth', 1.5); 
+plot(sim_time, sim_d, 'r--', 'LineWidth', 1.5); 
+title('Salida');
+ylabel('Distancia [cm]');
+legend('Referencia Real', 'Planta Real', 'Simulación');
+xlim([0, 18]);
+ylim([-2, 18]);
+grid on;
+hold off;
+
+
+figure;
+plot(t_real, real_u, 'g', 'LineWidth', 1.5); hold on;
+plot(sim_time, sim_u, 'r--', 'LineWidth', 1.5);
+title('Acción de control');
+xlabel('Tiempo [s]');
+ylabel('Comando');
+legend('Real', 'Simulado');
+xlim([8, 18]);
+ylim([-150, 250]);
+grid on;
+hold off;

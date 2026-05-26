@@ -1,0 +1,84 @@
+%save('datosX.mat', 'raw_ang_X', 'raw_u_X', 'raw_dist_X', 'indices_X', 't_v_X', 'ang_X', 'u_X', 'dist_X');
+close all;clc
+%clearvars -except out
+
+
+t_inicial   = 4.9;
+t_final     = 5.3;
+
+
+%obtengo los datos
+t_real_2        = out.tout;
+raw_ang_2       = out.angle_barra;
+raw_u_2         = out.servo; 
+raw_dist_2      = out.dist;
+offset_ang_2    = 0.36;
+
+%indices_2 = (t_real_2 >= t_inicial) & (t_real_2 <= t_final);
+indices = indices_2;
+t_v_2   = t_real_2(indices);
+ang_2   = raw_ang_2(indices) + offset_ang_2;
+u_2     = raw_u_2(indices);
+dist_2  = raw_dist_2(indices);
+
+figure;
+plot(t_v_2, ang_2, 'b', 'LineWidth', 1.2); 
+hold on; 
+plot(t_v_2, u_2 * 0.03, 'g', 'LineWidth', 1.5); 
+grid on;
+title("Ventana de tiempo seleccionada");
+hold off;
+
+
+%%
+% Ecuación: y(n+2) = a1*y(n+1) + a2*y(n) + b1*u(n)
+Y_obs = ang_2(3:end); 
+X_reg = [ang_2(2:end-1), ang_2(1:end-2), u_2(1:end-2)]; % retraso de 2 muestras
+% lo que hace es poner un cero de fase no minimaen continua para simular el
+% restraso de<< 2 muestras
+
+% Minimos cuadrados
+alpha = X_reg \ Y_obs;
+a1 = alpha(1);
+a2 = alpha(2);
+b1 = alpha(3);
+
+% Funciones de transferencia
+num_z = [b1]; % retraso de 2 muestras
+den_z = [1, -a1, -a2];
+Ts    = 20e-3;
+Hz = tf(num_z, den_z, Ts);
+polos_z = roots(den_z);
+
+Hs = d2c(Hz, 'tustin');
+polos_s = pole(Hs)
+
+s=tf('s');
+p1  = -18;
+p2  = -17;
+k_c = +0.042; %ang_x / u_x
+Hs = p1*p2*k_c /((s-p1)*(s-p2));
+
+
+
+% Simulamos la respuesta del modelo con la entrada real
+y_sim_z = lsim(Hz, u_1, t_v_1);
+y_sim_s = lsim(Hs, u_1, t_v_1);
+
+error = ang_1 - y_sim_s;
+MSE = mean(error.^2);
+fprintf('\nMSE en ventana: %.4f\n', MSE);
+RMSE = sqrt(MSE);
+fprintf('Error medio real: %.2f grados\n', RMSE);
+
+
+figure();
+plot(t_v_1, ang_1, 'g', 'LineWidth', 1.5); hold on;
+plot(t_v_1, y_sim_s, 'r--', 'LineWidth', 1.5);
+plot(t_v_1, u_1 * 0.05, 'b', 'LineWidth', 1); 
+ylim([-1, 7]);
+%title('Planta Real vs. Modelo Identificado');
+xlabel('Tiempo (s)');
+ylabel('\theta(t) / u(t)');
+legend('\theta real', '\theta estimado', 'u(t) * 0.05 = 130 \mus', 'Location', 'southeast');
+grid on;
