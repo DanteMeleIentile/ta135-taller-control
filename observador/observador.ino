@@ -20,7 +20,7 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define NEUTRO          1520 // +700 y -400
 #define K_SERVO_US_DEG  27.78 // Factor de conversión: 500 us / 18 grados
 
-#define ENVIO_PULSE     50 * 3
+#define ENVIO_PULSE     50 * 5
 #define OFFSET_SERVO    100
 
 /* --- Vars Controlador --- */
@@ -43,6 +43,9 @@ const float Bd[2] = {0.0020, 0.1811};
 const float L1 = 0.5922;
 const float L2 = -4.2568; 
 
+const float K1 = 11.6345;
+const float K2 = 0.6008; 
+
 float x1_hat = 0.0; 
 float x2_hat = 0.0; 
 
@@ -62,8 +65,7 @@ void setup() {
   Serial.begin(115200);
   myservo.attach(9);
   delay(1000);
-  myservo.writeMicroseconds(NEUTRO); 
-  Serial.println("Hola");
+  myservo.writeMicroseconds(NEUTRO);
   
   if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
@@ -100,20 +102,6 @@ void loop() {
     float angle_gyro_x  = angle_fc + gx_deg * dt; 
     angle_fc            = ALPHA * angle_acc_x + (1-ALPHA) * angle_gyro_x;
     
-    if (count_pulse >= ENVIO_PULSE) {
-      count_pulse = 0;
-      if (estado_pulse == 0) {
-        pulse = +OFFSET_SERVO;
-        myservo.writeMicroseconds(NEUTRO + pulse); //Anti-Horario
-        estado_pulse = 1;       
-      } 
-      else if (estado_pulse == 1) {
-        pulse = -OFFSET_SERVO;
-        myservo.writeMicroseconds(NEUTRO + pulse); //Horario
-        estado_pulse = 0;
-      }
-    }
-
     float error_est = angle_fc - x1_hat;
     float x1_hat_k_1 = (Ad[0][0] * x1_hat) + (Ad[0][1] * x2_hat) + (L1 * error_est) + (Bd[0] * pulse);
     float x2_hat_k_1 = (Ad[1][0] * x1_hat) + (Ad[1][1] * x2_hat) + (L2 * error_est) + (Bd[1] * pulse);
@@ -123,19 +111,34 @@ void loop() {
 
 
     /*** IMPLEMENTACIÓN CONTROLADOR ***/
-    float u = -1.0 * (38.2522 * x1_hat + 1.5785 * x2_hat);
+    
+    /*** REFERENCIA ***/
+    if (count_pulse >= ENVIO_PULSE) {
+      count_pulse = 0;
+      switch (estado_pulse) {
+        case 0:
+          setpoint = 250;
+          estado_pulse = 1;
+          break;
+        case 1:
+          setpoint = 0;
+          estado_pulse = 0;
+          break;
+      }
+    }
+    count_pulse++;
+    float u = -1.0 * (K1 * x1_hat + K2 * x2_hat) + setpoint;
     int pwm_out = NEUTRO + (int)(u);
-
-    if (pwm_out > NEUTRO + 400) {
+    
+    if (pwm_out > NEUTRO + 700) {
       pwm_out = NEUTRO + 400;
-      u = (float)(pwm_out - NEUTRO); 
+      u = (float)(pwm_out -  NEUTRO); 
     } 
     else if (pwm_out < NEUTRO - 400) {
       pwm_out = NEUTRO - 400;
       u = (float)(pwm_out - NEUTRO);
     }
     myservo.writeMicroseconds(pwm_out);
-
 
     /*** ACTUALIZACIÓN CONTROLADOR ***/
 
@@ -144,8 +147,8 @@ void loop() {
     /*** ENVÍO SIMULINK ***/
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
-      float to_send[] = {angle_fc, x1_hat, gx_deg, x2_hat};
-      matlab_send(to_send, 4);    
+      float to_send[] = {angle_fc, x1_hat, gx_deg, x2_hat, setpoint, u};
+      matlab_send(to_send, 6);    
     }
   }
 }
