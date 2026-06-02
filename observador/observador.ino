@@ -40,8 +40,8 @@ const float Ad[2][2] = {
     
 const float Bd[2] = {0.0020, 0.1811};  
 
-const float L1 = 0.41;
-const float L2 = -4.37; 
+const float L1 = 0.5922;
+const float L2 = -4.2568; 
 
 float x1_hat = 0.0; 
 float x2_hat = 0.0; 
@@ -123,7 +123,7 @@ void loop() {
 
 
     /*** IMPLEMENTACIÓN CONTROLADOR ***/
-    float u = -1.0 * (11.6345 * x1_hat + 0.6008 * x2_hat);
+    float u = -1.0 * (38.2522 * x1_hat + 1.5785 * x2_hat);
     int pwm_out = NEUTRO + (int)(u);
 
     if (pwm_out > NEUTRO + 400) {

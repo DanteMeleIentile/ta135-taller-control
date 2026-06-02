@@ -19,8 +19,8 @@ sys_d = c2d(sys_c, Ts, 'zoh');
 [Ad2, Bd2, Cd2, Dd2] = ssdata(sys_d);
 %% Observador
 
-l1_cont = -30; 
-l2_cont = -40; 
+l1_cont = -40; 
+l2_cont = -50; 
 l1_z = exp(l1_cont * Ts);
 l2_z = exp(l2_cont * Ts);
 
@@ -32,8 +32,8 @@ fprintf('l2_d = %.4f\n\n', L_d(2));
 
 %% Realimentación de estados
 
-polo_c1_cont = -20;
-polo_c2_cont = -25;
+polo_c1_cont = -30;
+polo_c2_cont = -35;
 z1_c = exp(polo_c1_cont * Ts);
 z2_c = exp(polo_c2_cont * Ts);
 
