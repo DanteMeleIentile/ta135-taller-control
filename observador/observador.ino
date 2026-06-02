@@ -24,6 +24,11 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define OFFSET_SERVO    100
 
 /* --- Vars Controlador --- */
+float e_1 = 0.0; // Error en n-1
+float e_2 = 0.0; // Error en n-2
+float u_1 = 0.0; // Acción de control en n-1
+float u_2 = 0.0; // Acción de control en n-2
+float setpoint = 0.0; // Ángulo deseado de la barra en grados
 
 
 /* --- Vars Observador --- */
@@ -58,6 +63,7 @@ void setup() {
   myservo.attach(9);
   delay(1000);
   myservo.writeMicroseconds(NEUTRO); 
+  Serial.println("Hola");
   
   if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
@@ -73,7 +79,7 @@ void setup() {
 
   x1_hat = INITIAL_ANGLE;
   
-  delay(100);
+  delay(3000);
 }
 
 void loop() {
@@ -108,21 +114,34 @@ void loop() {
       }
     }
 
-    
     float error_est = angle_fc - x1_hat;
     float x1_hat_k_1 = (Ad[0][0] * x1_hat) + (Ad[0][1] * x2_hat) + (L1 * error_est) + (Bd[0] * pulse);
     float x2_hat_k_1 = (Ad[1][0] * x1_hat) + (Ad[1][1] * x2_hat) + (L2 * error_est) + (Bd[1] * pulse);
     
     x1_hat = x1_hat_k_1;
     x2_hat = x2_hat_k_1;
-    
-    
-    
+
+
+    /*** IMPLEMENTACIÓN CONTROLADOR ***/
+    float u = -1.0 * (11.6345 * x1_hat + 0.6008 * x2_hat);
+    int pwm_out = NEUTRO + (int)(u);
+
+    if (pwm_out > NEUTRO + 400) {
+      pwm_out = NEUTRO + 400;
+      u = (float)(pwm_out - NEUTRO); 
+    } 
+    else if (pwm_out < NEUTRO - 400) {
+      pwm_out = NEUTRO - 400;
+      u = (float)(pwm_out - NEUTRO);
+    }
+    myservo.writeMicroseconds(pwm_out);
+
+
+    /*** ACTUALIZACIÓN CONTROLADOR ***/
 
     
 
     /*** ENVÍO SIMULINK ***/
-    
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
       float to_send[] = {angle_fc, x1_hat, gx_deg, x2_hat};

@@ -1,43 +1,44 @@
-
-clear all;close all;clc
-s=tf('s');
-
-optionss=bodeoptions;
-optionss.MagVisible='on';
-optionss.PhaseMatching='on';
-optionss.PhaseMatchingValue=-180;
-optionss.PhaseMatchingFreq=1;
-optionss.Grid='on';
+clear all; close all; clc
+s = tf('s');
 
 Ts = 20e-3;
-p1=-18.5;
-p2=-18;
-%p1=-18; p2=-17;
-P = p1*p2/((s-p1)*(s-p2));
-
-kc = db2mag(24);
-cero_c = -19;
-polo_c = -30;
-C=zpk([cero_c, cero_c],[0, polo_c],kc);
-
-L = minreal(C*P);
+p1 = -17;
+p2 = -18;
+k_planta = 0.042; 
 
 
-C_dig = c2d(C,Ts,'tustin')
+A = [0,         1;
+    -(p1*p2), p1+p2];
+B = [       0;
+    k_planta * p1 * p2];
+C = [1, 0]; 
+D = 0;
 
-S=1/(1+L);
-T=1-S;
+sys_c = ss(A, B, C, D);
+sys_d = c2d(sys_c, Ts, 'zoh');
+[Ad2, Bd2, Cd2, Dd2] = ssdata(sys_d);
+%% Observador
 
+l1_cont = -30; 
+l2_cont = -40; 
+l1_z = exp(l1_cont * Ts);
+l2_z = exp(l2_cont * Ts);
 
-% figuras
-figure();
-bode(P,optionss);title("Planta")
+L_d = place(Ad2', Cd2', [l1_z, l2_z])';
 
-figure();
-bode(C,optionss);title("Controlador")
+disp('Ganancias del OBSERVADOR (L_d):');
+fprintf('l1_d = %.4f\n', L_d(1));
+fprintf('l2_d = %.4f\n\n', L_d(2));
 
-figure();
-bode(L,optionss);title("L")
+%% Realimentación de estados
 
-figure();
-step(T);
+polo_c1_cont = -20;
+polo_c2_cont = -25;
+z1_c = exp(polo_c1_cont * Ts);
+z2_c = exp(polo_c2_cont * Ts);
+
+K_d = place(Ad2, Bd2, [z1_c, z2_c]);
+
+disp('Ganancias del CONTROLADOR (K_d):');
+fprintf('k1 = %.4f\n', K_d(1));
+fprintf('k2 = %.4f\n', K_d(2));
