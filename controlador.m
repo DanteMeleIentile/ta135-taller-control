@@ -38,7 +38,21 @@ z1_c = exp(polo_c1_cont * Ts);
 z2_c = exp(polo_c2_cont * Ts);
 
 K_d = place(Ad2, Bd2, [z1_c, z2_c]);
+K_d = -K_d
 
 disp('Ganancias del CONTROLADOR (K_d):');
 fprintf('k1 = %.4f\n', K_d(1));
 fprintf('k2 = %.4f\n', K_d(2));
+
+%% Feedfoward
+I = eye(size(Ad2)); %Identidad
+F = 1 / (Cd2 * inv(I - Ad2 - Bd2 * K_d) * Bd2);
+
+disp('Ganancia de pre-escalado de la referencia (F):');
+fprintf('F = %.4f\n', F);
+sys_cl_referencia = ss(Ad2 + Bd2*K_d, Bd2 * F, Cd2, Dd2, Ts);
+
+figure();
+step(sys_cl_referencia);
+title('Respuesta al Escalón Unitario con Pre-escalado F');
+grid on;

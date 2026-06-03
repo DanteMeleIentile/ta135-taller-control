@@ -24,10 +24,7 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define OFFSET_SERVO    100
 
 /* --- Vars Controlador --- */
-float e_1 = 0.0; // Error en n-1
-float e_2 = 0.0; // Error en n-2
 float u_1 = 0.0; // Acción de control en n-1
-float u_2 = 0.0; // Acción de control en n-2
 float setpoint = 0.0; // Ángulo deseado de la barra en grados
 
 
@@ -43,8 +40,9 @@ const float Bd[2] = {0.0020, 0.1811};
 const float L1 = 0.5922;
 const float L2 = -4.2568; 
 
-const float K1 = 11.6345;
-const float K2 = 0.6008; 
+const float K1  = -11.6345; //10.9724;
+const float K2  = -0.6008; //0.7049;//
+const float F   = +35.9940;
 
 float x1_hat = 0.0; 
 float x2_hat = 0.0; 
@@ -101,23 +99,40 @@ void loop() {
     float gx_deg        = g.gyro.x * 180.0 / PI + GYRO_X_OFFSET;    
     float angle_gyro_x  = angle_fc + gx_deg * dt; 
     angle_fc            = ALPHA * angle_acc_x + (1-ALPHA) * angle_gyro_x;
+
+
+    /*** IMPLEMENTACIÓN CONTROLADOR ***/
+    float u = K1 * x1_hat + K2 * x2_hat + F * setpoint;
+    if (u > 700) u = 700;
+    if (u < -400) u = -400; 
     
+    int pwm_out = NEUTRO + (int)(u);
+    myservo.writeMicroseconds(pwm_out);
+
+    /*** ACTUALIZACIÓN CONTROLADOR ***/
+    /*
+     *  
+     */
+    
+    
+    
+    /*** OBSERVADOR ***/
     float error_est = angle_fc - x1_hat;
-    float x1_hat_k_1 = (Ad[0][0] * x1_hat) + (Ad[0][1] * x2_hat) + (L1 * error_est) + (Bd[0] * pulse);
-    float x2_hat_k_1 = (Ad[1][0] * x1_hat) + (Ad[1][1] * x2_hat) + (L2 * error_est) + (Bd[1] * pulse);
+    float x1_hat_k_1 = (Ad[0][0] * x1_hat) + (Ad[0][1] * x2_hat) + (L1 * error_est) + (Bd[0] * u);
+    float x2_hat_k_1 = (Ad[1][0] * x1_hat) + (Ad[1][1] * x2_hat) + (L2 * error_est) + (Bd[1] * u);
     
     x1_hat = x1_hat_k_1;
     x2_hat = x2_hat_k_1;
 
 
-    /*** IMPLEMENTACIÓN CONTROLADOR ***/
+
     
     /*** REFERENCIA ***/
     if (count_pulse >= ENVIO_PULSE) {
       count_pulse = 0;
       switch (estado_pulse) {
         case 0:
-          setpoint = 250;
+          setpoint = 10;
           estado_pulse = 1;
           break;
         case 1:
@@ -126,28 +141,13 @@ void loop() {
           break;
       }
     }
-    count_pulse++;
-    float u = -1.0 * (K1 * x1_hat + K2 * x2_hat) + setpoint;
-    int pwm_out = NEUTRO + (int)(u);
-    
-    if (pwm_out > NEUTRO + 700) {
-      pwm_out = NEUTRO + 400;
-      u = (float)(pwm_out -  NEUTRO); 
-    } 
-    else if (pwm_out < NEUTRO - 400) {
-      pwm_out = NEUTRO - 400;
-      u = (float)(pwm_out - NEUTRO);
-    }
-    myservo.writeMicroseconds(pwm_out);
 
-    /*** ACTUALIZACIÓN CONTROLADOR ***/
-
-    
+       
 
     /*** ENVÍO SIMULINK ***/
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
-      float to_send[] = {angle_fc, x1_hat, gx_deg, x2_hat, setpoint, u};
+      float to_send[] = {angle_fc + 0.5, x1_hat, gx_deg, x2_hat, setpoint, u};
       matlab_send(to_send, 6);    
     }
   }
