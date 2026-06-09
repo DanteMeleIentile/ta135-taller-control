@@ -8,39 +8,61 @@ optionss.PhaseMatchingValue=-180;
 optionss.PhaseMatchingFreq=1;
 optionss.Grid='on';
 
-Ts = 20e-3;
-p1=-17;
-p2=-18;
-k_planta = 0.042; 
-P = k_planta*p1*p2/((s-p1)*(s-p2));
+Ts      = 20e-3;
+k_b     = 0.042; 
+p1      = -17;
+p2      = -18;
+k_c     = -6; 
+p3      = 0;
+p4      = -3.5;
 
-A = [0,         1;
-    -(p1*p2), p1+p2];
+P = k_b * (p1) * (p2) * k_c * (p4) /((s-p1)*(s-p2) * (s-p3)*(s-p4))
+
+A = [0,         1,      0,      0;
+    -(p1*p2), p1+p2,    0,      0;
+    0,          0,      0,      1;
+    k_c*p4,     0,      0,      p4];
+
 B = [       0;
-    k_planta * p1 * p2];
-C = [1, 0]; 
+    k_b * p1 * p2;
+            0;
+            0];
+C = [1,         0,      0,      0;
+    0,          0,      1,      0];
+
 D = 0;
 
 
 sys_c = ss(A, B, C, D)
 sys_d = c2d(sys_c, Ts, 'zoh')
-[Ad2, Bd2, Cd2, Dd2] = ssdata(sys_d)
+[Ad2, Bd2, Cd2, Dd2] = ssdata(sys_d);
 
 %I = eye(size(A));
 %Ad = I + A * Ts;
 %Bd = B * Ts;
 disp(Ad2);
-disp(Bd2);
+disp(Bd2');
 
+%%
 l1_cont = -30; 
 l2_cont = -40; 
+l3_cont = -35; 
+l4_cont = -45; 
 l1_z = exp(l1_cont * Ts)
 l2_z = exp(l2_cont * Ts)
+l3_z = exp(l3_cont * Ts)
+l4_z = exp(l3_cont * Ts)
 
-L_d = place(Ad2', Cd2', [l1_z, l2_z])';
+L_d = place(Ad2', Cd2', [l1_z, l2_z, l3_z, l4_z])'
 l1_d = L_d(1);
 l2_d = L_d(2);
+l3_d = L_d(3);
+l4_d = L_d(4);
 
-disp('Ganancias del observador en tiempo discreto (L_d):');
-disp(['l1_d = ', num2str(l1_d)]);
-disp(['l2_d = ', num2str(l2_d)]);
+%%
+fprintf('const float L[4][2] = {\n');
+for i = 1:4
+    fprintf('\t{%.6f,\t\t%.6f}', L_d(i,1), L_d(i,2));
+    if i < 5, fprintf(',\n'); else fprintf('\n'); end
+end
+fprintf('};\n');
