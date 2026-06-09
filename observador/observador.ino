@@ -26,7 +26,7 @@ void matlab_send(float* datos, uint32_t cantidad);
 #define ORIGEN_U        1520 // +700 y -400
 #define K_SERVO_US_DEG  27.78 // Factor de conversión: 500 us / 18 grados
 
-#define ENVIO_PULSE     50 * 3
+#define ENVIO_PULSE     50 * 0.5
 #define OFFSET_SERVO    100
 
 #define ORIGEN_D        15.0 
@@ -133,12 +133,12 @@ void loop() {
     if (count_pulse >= ENVIO_PULSE) {
       count_pulse = 0;
       if (estado_pulse == 0) {
-        u = +OFFSET_SERVO;
+        u = +200;
         myservo.writeMicroseconds(ORIGEN_U + u); //Anti-Horario
         estado_pulse = 1;       
       } 
       else if (estado_pulse == 1) {
-        u = -OFFSET_SERVO;
+        u = -230;
         myservo.writeMicroseconds(ORIGEN_U + u); //Horario
         estado_pulse = 0;
       }
@@ -186,8 +186,8 @@ void loop() {
     /*** ENVÍO SIMULINK ***/
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
-      float to_send[] = {angle_fc, x1_hat, gx_deg, x2_hat, 0, x3_hat};
-      matlab_send(to_send, 6);    
+      float to_send[] = {angle_fc, x1_hat, gx_deg, x2_hat, dist, x3_hat, x4_hat, u};
+      matlab_send(to_send, 8);    
     }
   }
 }

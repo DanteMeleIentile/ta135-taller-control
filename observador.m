@@ -59,7 +59,7 @@ l2_d = L_d(2);
 l3_d = L_d(3);
 l4_d = L_d(4);
 
-%%
+% Impresión Valores L
 fprintf('const float L[4][2] = {\n');
 for i = 1:4
     fprintf('\t{%.6f,\t\t%.6f}', L_d(i,1), L_d(i,2));
