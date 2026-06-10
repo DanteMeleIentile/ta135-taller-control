@@ -46,8 +46,8 @@ disp(Bd2');
 %%
 l1_cont = -30; 
 l2_cont = -40; 
-l3_cont = -35; 
-l4_cont = -45; 
+l3_cont = -20; 
+l4_cont = -25; 
 l1_z = exp(l1_cont * Ts)
 l2_z = exp(l2_cont * Ts)
 l3_z = exp(l3_cont * Ts)
@@ -66,3 +66,17 @@ for i = 1:4
     if i < 5, fprintf(',\n'); else fprintf('\n'); end
 end
 fprintf('};\n');
+
+%%
+%save('observador_XX_XX_XX_XX.mat', 't_real', 'angle_real', 'angle_est', 'w_real', 'w_est', 'd_real', 'd_est', 'vel_est', 'vel_simulink', 'u_real');
+t_real          = out.tout;
+angle_real      = out.angle_barra;
+angle_est       = out.angle_est;
+w_real          = out.w_real;
+w_est           = out.w_est;
+d_real          = out.d_real;
+d_est           = out.d_est;
+vel_est         = out.vel_est;
+vel_simulink    = out.vel_simulink;
+u_real          = out.u;
+

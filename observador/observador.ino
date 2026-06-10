@@ -4,6 +4,7 @@
 #include <math.h>
 #include <Servo.h>
 #include <NewPing.h>
+#include "matrices.h"
 
 Adafruit_MPU6050 mpu;
 
@@ -19,12 +20,11 @@ void matlab_send(float* datos, uint32_t cantidad);
 
 #define INITIAL_ANGLE   0 
 #define INITIAL_W       0 
-#define INITIAL_D       0 
+#define INITIAL_D       -12.0 
 #define INITIAL_V       0 
 
 
-#define ORIGEN_U        1520 // +700 y -400
-#define K_SERVO_US_DEG  27.78 // Factor de conversión: 500 us / 18 grados
+#define ORIGEN_U        1520 // +400 y -400
 
 #define ENVIO_PULSE     50 * 0.5
 #define OFFSET_SERVO    100
@@ -34,25 +34,7 @@ void matlab_send(float* datos, uint32_t cantidad);
 /* --- Vars Controlador --- */
 
 
-/* --- Vars Observador --- */
-const float Ad[4][4] = {
-    {0.9514,    0.0141,         0,         0},
-   {-4.3128,    0.4581,         0,         0},
-    {0.0041,    0.0000,    1.0000,    0.0193},
-    {0.3986,    0.0033,         0,    0.9324},
-};
-
-const float Bd[4] = {0.0020,    0.1811,    0.0000,    0.0003};  
-
-const float L[4][2] = {
-  {0.463532,    -0.000019},
-  {-4.336666,   0.000052},
-  {0.003480,    0.886998},
-  {0.387015,    8.654391},
-};
-
-
-
+/* --- Vars estado --- */
 float x1_hat = INITIAL_ANGLE; 
 float x2_hat = INITIAL_W; 
 float x3_hat = INITIAL_D; 
@@ -113,6 +95,7 @@ void loop() {
     t_anterior = t_actual;
     count_tx++;
     count_pulse++;
+    
     
     /* --- DATOS IMU --- */
     sensors_event_t a, g, temp;
@@ -189,6 +172,7 @@ void loop() {
       float to_send[] = {angle_fc, x1_hat, gx_deg, x2_hat, dist, x3_hat, x4_hat, u};
       matlab_send(to_send, 8);    
     }
+    
   }
 }
 
