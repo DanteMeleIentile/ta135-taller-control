@@ -2,7 +2,6 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 #include <math.h>
-#include <Servo.h>
 #include <NewPing.h>
 
 #include "config.h"
@@ -98,12 +97,12 @@ void loop() {
       count_pulse = 0;
       if (estado_pulse == 0) {
         u = +200;
-        write_seguro(u); //Anti-Horario
+        actuador(u); //Anti-Horario
         estado_pulse = 1;       
       } 
       else if (estado_pulse == 1) {
         u = -230;
-        write_seguro(u); //Horario
+        actuador(u); //Horario
         estado_pulse = 0;
       }
     }
