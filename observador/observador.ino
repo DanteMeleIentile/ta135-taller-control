@@ -4,7 +4,10 @@
 #include <math.h>
 #include <Servo.h>
 #include <NewPing.h>
+
+#include "config.h"
 #include "matrices.h"
+#include "servo_mod.h"
 
 Adafruit_MPU6050 mpu;
 
@@ -12,24 +15,7 @@ Adafruit_MPU6050 mpu;
 void matlab_send(float* datos, uint32_t cantidad);
 
 /* MACROS */
-#define T_LOOP_US       20000
-#define US_2_SEG        1000000.0
-#define FREC_ENVIO      1
-#define GYRO_X_OFFSET   +3.04
-#define ALPHA           0.1
-
-#define INITIAL_ANGLE   0 
-#define INITIAL_W       0 
-#define INITIAL_D       -12.0 
-#define INITIAL_V       0 
-
-
-#define ORIGEN_U        1520 // +400 y -400
-
 #define ENVIO_PULSE     50 * 0.5
-#define OFFSET_SERVO    100
-
-#define ORIGEN_D        15.0 
 
 /* --- Vars Controlador --- */
 
@@ -49,15 +35,10 @@ float angle_fc = INITIAL_ANGLE;
 
 
 /* --- Vars SR04 --- */
-const int TRIGGER_PIN = 6;
-const int ECHO_PIN = 7;
-const int MAX_DISTANCE = 450;
-const int MIN_DISTANCE = 30;
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
 
 /* --- Vars. Servo --- */ 
-Servo myservo; 
 uint32_t count_pulse    = 0;
 uint32_t estado_pulse   = 0;
 float u                 = 0;
@@ -117,12 +98,12 @@ void loop() {
       count_pulse = 0;
       if (estado_pulse == 0) {
         u = +200;
-        myservo.writeMicroseconds(ORIGEN_U + u); //Anti-Horario
+        write_seguro(u); //Anti-Horario
         estado_pulse = 1;       
       } 
       else if (estado_pulse == 1) {
         u = -230;
-        myservo.writeMicroseconds(ORIGEN_U + u); //Horario
+        write_seguro(u); //Horario
         estado_pulse = 0;
       }
     }

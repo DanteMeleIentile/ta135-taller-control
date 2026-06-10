@@ -1,7 +1,6 @@
 #ifndef CONTROL_MATRICES_H
 #define CONTROL_MATRICES_H
 
-// --- Matrices del Observador Discreto ---
 const float Ad[4][4] = {
     {0.9514,    0.0141,         0,         0},
    {-4.3128,    0.4581,         0,         0},
