@@ -30,7 +30,8 @@ B = [       0;
 C = [1,         0,      0,      0;
     0,          0,      1,      0];
 
-D = 0;
+D = [0;
+    0];
 
 
 sys_c = ss(A, B, C, D)
@@ -84,7 +85,7 @@ x4_max = K_d(4) * 25;
 fprintf('MAX = %.6f, %.6f, %.6f, %.6f, TOTAL = %.6f};\n', x1_max, x2_max, x3_max, x4_max, abs(x1_max)+abs(x2_max)+abs(x3_max)+abs(x4_max));
 
 
-%%
+%% Toma de datos ARDUINO
 %save('observador_XX_XX_XX_XX.mat', 't_real', 'angle_real', 'angle_est', 'w_real', 'w_est', 'd_real', 'd_est', 'vel_est', 'vel_simulink', 'u_real');
 t_real          = out.tout;
 angle_real      = out.angle_barra;
@@ -97,3 +98,59 @@ vel_est         = out.vel_est;
 vel_simulink    = out.vel_simulink;
 u_real          = out.u;
 
+
+%% Simulación
+
+x0_sim = [0; 0; 0; 80];
+disp('Ejecutando simulación SIMULINK...');
+sim_data = sim('realim_estados_1', 'ReturnWorkspaceOutputs', 'on'); 
+disp('Simulación finalizada');
+
+t_sim     = sim_data.tout;
+angle_sim = sim_data.angle_sim;
+w_sim     = sim_data.w_sim;
+d_sim     = sim_data.d_sim;
+vel_sim   = sim_data.vel_sim;
+
+
+%% Graficos compración
+
+% -- Gráfico 1: Ángulo --
+figure('Name', 'Ángulo', 'NumberTitle', 'off');
+plot(t_real, angle_real, 'b', 'LineWidth', 1.5); hold on;
+plot(t_real, angle_est, 'r--', 'LineWidth', 1.5);
+plot(t_sim, angle_sim, 'g-.', 'LineWidth', 2); hold off;
+title('Ángulo (\theta): Real vs Estimado vs Simulado');
+xlabel('Tiempo [s]'); ylabel('Ángulo [rad]'); 
+legend('Real (Arduino)', 'Estimado (Observador)', 'Simulación Teórica', 'Location', 'best');
+grid on;
+
+% -- Gráfico 2: Velocidad Angular --
+figure('Name', 'Velocidad Angular (w)', 'NumberTitle', 'off');
+plot(t_real, w_real, 'b', 'LineWidth', 1.5); hold on;
+plot(t_real, w_est, 'r--', 'LineWidth', 1.5);
+plot(t_sim, w_sim, 'g-.', 'LineWidth', 2); hold off;
+title('Velocidad Angular (\omega): Real vs Estimado vs Simulado');
+xlabel('Tiempo [s]'); ylabel('Vel. Angular [rad/s]');
+legend('Real (Arduino)', 'Estimado (Observador)', 'Simulación Teórica', 'Location', 'best');
+grid on;
+
+% -- Gráfico 3: Posición --
+figure('Name', 'Posición (d)', 'NumberTitle', 'off');
+plot(t_real, d_real, 'b', 'LineWidth', 1.5); hold on;
+plot(t_real, d_est, 'r--', 'LineWidth', 1.5);
+plot(t_sim, d_sim, 'g-.', 'LineWidth', 2); hold off;
+title('Posición (d): Real vs Estimada vs Simulada');
+xlabel('Tiempo [s]'); ylabel('Posición [m]'); 
+legend('Real (Arduino)', 'Estimada (Observador)', 'Simulación Teórica', 'Location', 'best');
+grid on;
+
+% -- Gráfico 4: Velocidad Lineal --
+figure('Name', 'Velocidad Lineal (vel)', 'NumberTitle', 'off');
+plot(t_real, vel_simulink, 'b', 'LineWidth', 1.5); hold on;
+plot(t_real, vel_est, 'r--', 'LineWidth', 1.5);
+plot(t_sim, vel_sim, 'g-.', 'LineWidth', 2); hold off;
+title('Velocidad Lineal (v): Medida vs Estimada vs Simulada');
+xlabel('Tiempo [s]'); ylabel('Velocidad [m/s]');
+legend('Derivada Numérica (Real)', 'Estimada (Observador)', 'Simulación Teórica', 'Location', 'best');
+grid on;

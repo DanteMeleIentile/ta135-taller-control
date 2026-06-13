@@ -81,9 +81,6 @@ vel_simulink    = out.vel_simulink;
 u_real          = out.u;
 
 %%
-% =========================================================================
-% Gráficas de las 4 variables de estado: Medido/Simulink vs Estimado
-% =========================================================================
 
 
 figure('Name', 'Ángulo', 'NumberTitle', 'off');
