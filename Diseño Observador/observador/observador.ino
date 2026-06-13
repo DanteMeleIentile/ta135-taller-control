@@ -90,7 +90,6 @@ void loop() {
     /* --- DATOS SR04 --- */
     unsigned long time_ping = sonar.ping(); 
     float dist = time_ping / (2.0 * 29.287) - ORIGEN_D;
-
     
     
     if (count_pulse >= ENVIO_PULSE) {

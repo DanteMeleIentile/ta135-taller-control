@@ -47,7 +47,7 @@ disp(Bd2');
 l1_cont = -30; 
 l2_cont = -40; 
 l3_cont = -20; 
-l4_cont = -25; 
+l4_cont = -21; 
 l1_z = exp(l1_cont * Ts)
 l2_z = exp(l2_cont * Ts)
 l3_z = exp(l3_cont * Ts)
