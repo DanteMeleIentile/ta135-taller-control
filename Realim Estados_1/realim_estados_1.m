@@ -1,3 +1,4 @@
+%Realim de estados
 clear all;close all;clc
 s=tf('s');
 
@@ -38,13 +39,10 @@ sys_c = ss(A, B, C, D)
 sys_d = c2d(sys_c, Ts, 'zoh')
 [Ad2, Bd2, Cd2, Dd2] = ssdata(sys_d);
 
-%I = eye(size(A));
-%Ad = I + A * Ts;
-%Bd = B * Ts;
 disp(Ad2);
 disp(Bd2');
 
-%% Observador
+% Observador
 l1_cont = -30; 
 l2_cont = -40; 
 l3_cont = -20; 
@@ -61,8 +59,7 @@ l3_d = L_d(3);
 l4_d = L_d(4);
 
 
-%% Realimentación de estados
-
+% Realimentación de estados
 polo_k1 = -15.5;
 polo_k2 = -15;
 polo_k3 = -3.5+2i;        
@@ -86,21 +83,31 @@ fprintf('MAX = %.6f, %.6f, %.6f, %.6f, TOTAL = %.6f};\n', x1_max, x2_max, x3_max
 
 
 %% Toma de datos ARDUINO
-%save('observador_XX_XX_XX_XX.mat', 't_real', 'angle_real', 'angle_est', 'w_real', 'w_est', 'd_real', 'd_est', 'vel_est', 'vel_simulink', 'u_real');
-t_real          = out.tout;
-angle_real      = out.angle_barra;
-angle_est       = out.angle_est;
-w_real          = out.w_real;
-w_est           = out.w_est;
-d_real          = out.d_real;
-d_est           = out.d_est;
-vel_est         = out.vel_est;
-vel_simulink    = out.vel_simulink;
-u_real          = out.u;
+t_full          = out.tout;
+angle_real_full = out.angle_barra;
+angle_est_full  = out.angle_est;
+w_real_full     = out.w_real;
+w_est_full      = out.w_est;
+d_real_full     = out.d_real;
+d_est_full      = out.d_est;
+vel_simulink_full = out.vel_simulink; 
+vel_est_full    = out.vel_est;
+
+t_start = 2.5;  
+t_end   = 7.5; 
+idx = find(t_full >= t_start & t_full <= t_end);
+t_real = t_full(idx) - t_start;
+angle_real   = angle_real_full(idx);
+angle_est    = angle_est_full(idx);
+w_real       = w_real_full(idx);
+w_est        = w_est_full(idx);
+d_real       = d_real_full(idx);
+d_est        = d_est_full(idx);
+vel_simulink = vel_simulink_full(idx); 
+vel_est      = vel_est_full(idx);
 
 
 %% Simulación
-
 x0_sim = [0; 0; 0; 80];
 disp('Ejecutando simulación SIMULINK...');
 sim_data = sim('realim_estados_1', 'ReturnWorkspaceOutputs', 'on'); 
@@ -111,6 +118,17 @@ angle_sim = sim_data.angle_sim;
 w_sim     = sim_data.w_sim;
 d_sim     = sim_data.d_sim;
 vel_sim   = sim_data.vel_sim;
+
+
+
+%% -------------- GUARDADO EN MATLAB --------------
+timestamp = datestr(now, 'yyyymmdd_HHMMSS');
+nombre_archivo = sprintf('datos_ensayo_%s.mat', timestamp);
+disp(['Guardando variables en: ', nombre_archivo]);
+save(nombre_archivo, ...
+    't_full', 'angle_real_full', 'angle_est_full', 'w_real_full', 'w_est_full', 'd_real_full', 'd_est_full', 'vel_simulink_full', 'vel_est_full', ...
+    't_real', 'angle_real', 'angle_est', 'w_real', 'w_est', 'd_real', 'd_est', 'vel_simulink', 'vel_est', ...
+    't_sim', 'angle_sim', 'w_sim', 'd_sim', 'vel_sim');
 
 
 %% Graficos compración

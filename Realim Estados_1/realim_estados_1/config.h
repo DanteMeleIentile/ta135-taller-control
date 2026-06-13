@@ -18,7 +18,7 @@ const int MIN_DISTANCE = 30;
 /* --- Condiciones Iniciales --- */
 #define INITIAL_ANGLE   0 
 #define INITIAL_W       0 
-#define INITIAL_D       -12.0 
+#define INITIAL_D       0 
 #define INITIAL_V       0 
 
 #endif
