@@ -48,12 +48,12 @@ l1_cont = -30;
 l2_cont = -40; 
 l3_cont = -20; 
 l4_cont = -25; 
-l1_z = exp(l1_cont * Ts)
-l2_z = exp(l2_cont * Ts)
-l3_z = exp(l3_cont * Ts)
-l4_z = exp(l3_cont * Ts)
+l1_z = exp(l1_cont * Ts);
+l2_z = exp(l2_cont * Ts);
+l3_z = exp(l3_cont * Ts);
+l4_z = exp(l4_cont * Ts);
 
-L_d = place(Ad2', Cd2', [l1_z, l2_z, l3_z, l4_z])'
+L_d = place(Ad2', Cd2', [l1_z, l2_z, l3_z, l4_z])';
 l1_d = L_d(1);
 l2_d = L_d(2);
 l3_d = L_d(3);
@@ -66,6 +66,26 @@ for i = 1:4
     if i < 5, fprintf(',\n'); else fprintf('\n'); end
 end
 fprintf('};\n');
+
+%% Realimentación de estados
+
+polo_c1_cont = -20;
+polo_c2_cont = -21;
+polo_c3_cont = -22;
+polo_c4_cont = -23;
+z1_c = exp(polo_c1_cont * Ts);
+z2_c = exp(polo_c2_cont * Ts);
+z3_c = exp(polo_c3_cont * Ts);
+z4_c = exp(polo_c4_cont * Ts);
+
+
+K_d = place(Ad2, Bd2, [z1_c, z2_c, z3_c, z4_c]);
+K_d = -K_d
+
+disp('Ganancias del CONTROLADOR (K_d):');
+fprintf('const float K[4] = {%.6f, %.6f, %.6f, %.6f};\n', K_d(1), K_d(2), K_d(3), K_d(4));
+
+
 
 %%
 %save('observador_XX_XX_XX_XX.mat', 't_real', 'angle_real', 'angle_est', 'w_real', 'w_est', 'd_real', 'd_est', 'vel_est', 'vel_simulink', 'u_real');

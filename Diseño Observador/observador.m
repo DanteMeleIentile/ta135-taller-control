@@ -51,7 +51,7 @@ l4_cont = -25;
 l1_z = exp(l1_cont * Ts)
 l2_z = exp(l2_cont * Ts)
 l3_z = exp(l3_cont * Ts)
-l4_z = exp(l3_cont * Ts)
+l4_z = exp(l4_cont * Ts)
 
 L_d = place(Ad2', Cd2', [l1_z, l2_z, l3_z, l4_z])'
 l1_d = L_d(1);
