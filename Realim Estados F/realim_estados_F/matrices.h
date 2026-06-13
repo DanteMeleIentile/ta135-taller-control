@@ -20,5 +20,9 @@ const float L[4][2] = {
 
 /* --- REALIMENTACIÓN DE ESTADOS --- */
 const float K[4]  = {-3.824244, 0.025306, -14.105631, -3.461657};
+const float F[2]  = {0.000000, 14.105631};
+
+
+
 
 #endif

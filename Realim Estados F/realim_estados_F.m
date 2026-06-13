@@ -81,6 +81,13 @@ x3_max = K_d(3) * 12;
 x4_max = K_d(4) * 25;
 fprintf('MAX = %.6f, %.6f, %.6f, %.6f, TOTAL = %.6f};\n', x1_max, x2_max, x3_max, x4_max, abs(x1_max)+abs(x2_max)+abs(x3_max)+abs(x4_max));
 
+%% Feedfoward
+I = eye(size(Ad2));
+F = 1 / (Cd2 * inv(I - Ad2 - Bd2 * K_d) * Bd2);
+
+fprintf('const float F[2]  = {%.6f, %.6f};\n', F(1), F(2));
+%sys_cl_referencia = ss(Ad2 + Bd2*K_d, Bd2 * F, Cd2, Dd2, Ts);
+
 
 %% Toma de datos ARDUINO
 t_full          = out.tout;
