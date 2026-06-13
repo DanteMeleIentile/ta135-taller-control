@@ -80,3 +80,56 @@ vel_est         = out.vel_est;
 vel_simulink    = out.vel_simulink;
 u_real          = out.u;
 
+%%
+% =========================================================================
+% Gráficas de las 4 variables de estado: Medido/Simulink vs Estimado
+% =========================================================================
+
+
+figure('Name', 'Ángulo', 'NumberTitle', 'off');
+plot(t_real, angle_real, 'b', 'LineWidth', 1.5); 
+hold on;
+plot(t_real, angle_est, 'r--', 'LineWidth', 1.5);
+hold off;
+title('Ángulo: Medido vs Estimado');
+xlabel('Tiempo [s]');
+ylabel('Ángulo [rad]'); % Cambia las unidades si están en grados
+legend('Medido (angle\_real)', 'Estimado (angle\_est)', 'Location', 'best');
+grid on;
+
+
+figure('Name', 'Velocidad Angular (w)', 'NumberTitle', 'off');
+plot(t_real, w_real, 'b', 'LineWidth', 1.5); 
+hold on;
+plot(t_real, w_est, 'r--', 'LineWidth', 1.5);
+hold off;
+title('Velocidad Angular (w): Medida vs Estimada');
+xlabel('Tiempo [s]');
+ylabel('Velocidad Angular [rad/s]');
+legend('Medida (w\_real)', 'Estimada (w\_est)', 'Location', 'best');
+grid on;
+
+
+figure('Name', 'Posición (d)', 'NumberTitle', 'off');
+plot(t_real, d_real, 'b', 'LineWidth', 1.5); 
+hold on;
+plot(t_real, d_est, 'r--', 'LineWidth', 1.5);
+hold off;
+title('Posición (d): Medida vs Estimada');
+xlabel('Tiempo [s]');
+ylabel('Posición [m]'); 
+legend('Medida (d\_real)', 'Estimada (d\_est)', 'Location', 'best');
+grid on;
+
+
+figure('Name', 'Velocidad Lineal (vel)', 'NumberTitle', 'off');
+plot(t_real, vel_simulink, 'b', 'LineWidth', 1.5); 
+hold on;
+plot(t_real, vel_est, 'r--', 'LineWidth', 1.5);
+hold off;
+title('Velocidad (vel): Simulink/Medida vs Estimada');
+xlabel('Tiempo [s]');
+ylabel('Velocidad [m/s]');
+legend('Simulink/Medida (vel\_simulink)', 'Estimada (vel\_est)', 'Location', 'best');
+grid on;
+
