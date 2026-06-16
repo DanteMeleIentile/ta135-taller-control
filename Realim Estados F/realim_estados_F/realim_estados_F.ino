@@ -96,7 +96,7 @@ void loop() {
     if (count_pulse >= ENVIO_PULSE) {
       count_pulse = 0;
       if (estado_pulse == 0) {
-        ref_d = +8;
+        ref_d = +15;
         estado_pulse = 1;       
       } 
       else if (estado_pulse == 1) {

@@ -117,8 +117,8 @@ vel_sim   = sim_data.vel_sim;
 
 %% -------------- GUARDADO EN MATLAB --------------
 timestamp = datestr(now, 'yyyymmdd_HHMMSS');
-nombre_archivo = sprintf('datos_ensayo_%s.mat', timestamp);
-%nombre_archivo = 'realim_estados_K_2_izq.mat';
+%nombre_archivo = sprintf('datos_ensayo_%s.mat', timestamp);
+nombre_archivo = 'realim_estados_F_15.mat';
 disp(['Guardando variables en: ', nombre_archivo]);
 save(nombre_archivo, ...
     't_full', 'angle_real_full', 'angle_est_full', 'w_real_full', 'w_est_full', 'd_real_full', 'd_est_full', 'vel_simulink_full', 'vel_est_full', ...
