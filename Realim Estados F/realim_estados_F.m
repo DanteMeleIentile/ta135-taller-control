@@ -102,9 +102,9 @@ vel_est_full    = out.vel_est;
 
 
 %% Simulación
-x0_sim = [0; 0; 0; 80];
+x0_sim = [0; 0; 0; 0];
 disp('Ejecutando simulación SIMULINK...');
-sim_data = sim('realim_estados_1', 'ReturnWorkspaceOutputs', 'on'); 
+sim_data = sim('realim_estados_F', 'ReturnWorkspaceOutputs', 'on'); 
 disp('Simulación finalizada');
 
 t_sim     = sim_data.sim_time;
@@ -131,8 +131,8 @@ save(nombre_archivo, ...
 % -------- Graficos compración ---------
 % --------------------------------------
 t_start = 2;  
-t_end   = 5; 
-t_sim_offset = 0.83;
+t_end   = 32; 
+t_sim_offset = 7;
 idx = find(t_full >= t_start & t_full <= t_end);
 t_real = t_full(idx) - t_start;
 angle_real   = angle_real_full(idx);

@@ -108,7 +108,7 @@ void loop() {
 
     
     /* --- IMPLEMENTACIÓN CONTROLADOR --- */
-    u = K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat
+    float u = K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat
               + F[0] * ref_angle + F[1] * ref_d;
     actuador(u);
     
