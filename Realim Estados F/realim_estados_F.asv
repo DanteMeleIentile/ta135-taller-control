@@ -117,10 +117,11 @@ vel_sim   = sim_data.vel_sim;
 %% -------------- GUARDADO EN MATLAB --------------
 timestamp = datestr(now, 'yyyymmdd_HHMMSS');
 %nombre_archivo = sprintf('datos_ensayo_%s.mat', timestamp);
-%nombre_archivo = 'realim_estados_F_15_1.mat';
+nombre_archivo = 'realim_estados_F_15_1.mat';
 disp(['Guardando variables en: ', nombre_archivo]);
 save(nombre_archivo, ...
     't_full', 'angle_real_full', 'angle_est_full', 'w_real_full', 'w_est_full', 'd_real_full', 'd_est_full', 'vel_simulink_full', 'vel_est_full', ...
+    'angle_real', 'angle_est', 'w_real', 'w_est', 'd_real', 'd_est', 'vel_simulink', 'vel_est', ...
     't_sim', 'angle_sim', 'w_sim', 'd_sim', 'vel_sim');
 
 
@@ -128,9 +129,9 @@ save(nombre_archivo, ...
 %% -------------------------------------
 % -------- Graficos compración ---------
 % --------------------------------------
-t_start = 6;  
-t_end   = 56; 
-t_sim_offset = 4;
+t_start = 2;  
+t_end   = 32; 
+t_sim_offset = 7;
 idx = find(t_full >= t_start & t_full <= t_end);
 t_real = t_full(idx) - t_start;
 angle_real   = angle_real_full(idx);
@@ -175,8 +176,8 @@ grid on;
 
 % -- Gráfico 4: Velocidad Lineal --
 figure('Name', 'Velocidad Lineal (vel)', 'NumberTitle', 'off');
-plot(t_real, vel_est, 'r--', 'LineWidth', 1.5); hold on;
-%plot(t_real, vel_simulink, 'b', 'LineWidth', 1.5);
+plot(t_real, vel_simulink, 'b', 'LineWidth', 1.5); hold on;
+plot(t_real, vel_est, 'r--', 'LineWidth', 1.5);
 plot(t_sim+t_sim_offset, vel_sim, 'g-.', 'LineWidth', 2); hold off;
 title('Velocidad Lineal (v): Medida vs Estimada vs Simulada');
 xlabel('Tiempo [s]'); ylabel('Velocidad [m/s]');

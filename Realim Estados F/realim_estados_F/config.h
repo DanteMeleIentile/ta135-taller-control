@@ -3,7 +3,7 @@
 
 #define T_LOOP_US       20000
 #define US_2_SEG        1000000.0
-#define FREC_ENVIO      1000000
+#define FREC_ENVIO      1
 
 #define GYRO_X_OFFSET   +3.04
 #define ALPHA           0.1
