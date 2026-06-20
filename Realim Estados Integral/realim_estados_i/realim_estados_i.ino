@@ -22,9 +22,9 @@ void matlab_send(float* datos, uint32_t cantidad);
 float x1_hat      = INITIAL_ANGLE; 
 float x2_hat      = INITIAL_W; 
 float x3_hat      = INITIAL_D; 
-float x4_hat      = INITIAL_V; 
+float x4_hat      = INITIAL_V;
+float x5          = 0.0; 
 float ref_d       = REF_D_INICIAL;
-float ref_angle   = REF_ANGLE_INICIAL;
 
 
 /* --- */
@@ -96,7 +96,7 @@ void loop() {
     if (count_pulse >= ENVIO_PULSE) {
       count_pulse = 0;
       if (estado_pulse == 0) {
-        ref_d = +15;
+        ref_d = 12;
         estado_pulse = 1;       
       } 
       else if (estado_pulse == 1) {
@@ -107,10 +107,15 @@ void loop() {
 
 
     
-    /* --- IMPLEMENTACIÓN CONTROLADOR --- */
-    float u = K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat
-              + F[0] * ref_angle + F[1] * ref_d;
+    /* --- IMPLEMENTACIÓN REALIMENTACION --- */
+    float u = -(K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat
+              + K[4] * x5);
     actuador(u);
+
+    float error   = ref_d - x3_hat;
+    float x5_k_1  = x5 + error;
+    // ANTI-WINDUP 
+
     
        
 
@@ -133,19 +138,24 @@ void loop() {
     float x4_hat_k_1 = (Ad[3][0] * x1_hat) + (Ad[3][1] * x2_hat) + (Ad[3][2] * x3_hat) + (Ad[3][3] * x4_hat)
                       + (L[3][0] * error_angle) + (L[3][1] * error_dist)
                       + (Bd[3] * u);
-   
+
+    
     x1_hat = x1_hat_k_1;
     x2_hat = x2_hat_k_1;
     x3_hat = x3_hat_k_1;
     x4_hat = x4_hat_k_1;
-     
+    x5     = x5_k_1;
 
 
     /* --- ENVÍO SIMULINK --- */
     if (count_tx == FREC_ENVIO) {
       count_tx = 0;
-      float to_send[] = {angle_fc, x1_hat, gx_deg, x2_hat, dist, x3_hat, x4_hat, u};
-      matlab_send(to_send, 8);    
+      float to_send[] = {angle_fc, x1_hat,
+                          gx_deg, x2_hat,
+                          dist, x3_hat, 
+                          x4_hat, 
+                          x5, u, ref_d};
+      matlab_send(to_send, 10);    
     }
     
   }

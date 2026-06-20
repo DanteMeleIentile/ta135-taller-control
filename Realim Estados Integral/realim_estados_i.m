@@ -70,9 +70,9 @@ Bext = [Bd2;
 
 polo_k1 = -15.5;
 polo_k2 = -15;
-polo_k3 = -3.5+2i; %2.5??        
-polo_k4 = -3.5-2i;
-polo_k5  = -1.2; 
+polo_k3 = -2.5; %2.5??        
+polo_k4 = -2.3;
+polo_k5  = -6; 
 z1_k = exp(polo_k1 * Ts);
 z2_k = exp(polo_k2 * Ts);
 z3_k = exp(polo_k3 * Ts);
