@@ -41,51 +41,52 @@ sys_d = c2d(sys_c, Ts, 'zoh')
 
 disp(Ad2);
 disp(Bd2');
+disp(Cd2');
 
 % Observador
 l1_cont = -30; 
 l2_cont = -40; 
 l3_cont = -20; 
 l4_cont = -20; 
-l1_z = exp(l1_cont * Ts)
-l2_z = exp(l2_cont * Ts)
-l3_z = exp(l3_cont * Ts)
-l4_z = exp(l4_cont * Ts)
+l1_z = exp(l1_cont * Ts);
+l2_z = exp(l2_cont * Ts);
+l3_z = exp(l3_cont * Ts);
+l4_z = exp(l4_cont * Ts);
 
-L_d = place(Ad2', Cd2', [l1_z, l2_z, l3_z, l4_z])'
+L_d = place(Ad2', Cd2', [l1_z, l2_z, l3_z, l4_z])';
 l1_d = L_d(1);
 l2_d = L_d(2);
 l3_d = L_d(3);
 l4_d = L_d(4);
 
+%% Realimentación con accióin intregral
+C_new = [0, 0, 1, 0];
 
-% Realimentación de estados
+Aext = [Ad2,     zeros(4,1); 
+        -C_new,     1      ];
+
+Bext = [Bd2; 
+    0  ];
+
 polo_k1 = -15.5;
 polo_k2 = -15;
-polo_k3 = -3.5+2i;        
+polo_k3 = -3.5+2i; %2.5??        
 polo_k4 = -3.5-2i;
+polo_k5  = -1.2; 
 z1_k = exp(polo_k1 * Ts);
 z2_k = exp(polo_k2 * Ts);
 z3_k = exp(polo_k3 * Ts);
 z4_k = exp(polo_k4 * Ts);
+z5_k = exp(polo_k5 * Ts);
 
 
-K_d = place(Ad2, Bd2, [z1_k, z2_k, z3_k, z4_k]);
-K_d = -K_d;
+K_ext = place(Aext, Bext, [z1_k, z2_k, z3_k, z4_k, z5_k]);
 
-disp('Ganancias del CONTROLADOR (K_d):');
-fprintf('const float K[4] = {%.6f, %.6f, %.6f, %.6f};\n', K_d(1), K_d(2), K_d(3), K_d(4));
-x1_max = K_d(1) * 8;
-x2_max = K_d(2) * 100;
-x3_max = K_d(3) * 12;
-x4_max = K_d(4) * 25;
-fprintf('MAX = %.6f, %.6f, %.6f, %.6f, TOTAL = %.6f};\n', x1_max, x2_max, x3_max, x4_max, abs(x1_max)+abs(x2_max)+abs(x3_max)+abs(x4_max));
 
-% Feedfoward
-I = eye(size(Ad2));
-F = 1 / (Cd2 * inv(I - Ad2 - Bd2 * K_d) * Bd2);
 
-fprintf('const float F[2]  = {%.6f, %.6f};\n', F(1), F(2));
+fprintf('const float K[5] = {%.6f, %.6f, %.6f, %.6f, %.6f};\n\n', K_ext(1), K_ext(2), K_ext(3), K_ext(4), K_ext(5));
+
+
 
 
 %% Toma de datos ARDUINO
