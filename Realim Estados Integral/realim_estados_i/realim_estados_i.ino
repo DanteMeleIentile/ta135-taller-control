@@ -96,7 +96,7 @@ void loop() {
     if (count_pulse >= ENVIO_PULSE) { 
       count_pulse = 0;
       if (estado_pulse == 0) {
-        ref_d = 12;
+        ref_d = 10;
         estado_pulse = 1;       
       } 
       else if (estado_pulse == 1) {
@@ -119,8 +119,8 @@ void loop() {
     float error   = ref_d - x3_hat;
     float x5_k_1  = x5 + error;
     // ANTI-WINDUP
-    if (x5_k_1 > 2000.0)  x5_k_1 = 2000.0;
-    if (x5_k_1 < -2000.0) x5_k_1 = -2000.0;
+    if (x5_k_1 > 700.0)  x5_k_1 = 700.0;
+    if (x5_k_1 < -700.0) x5_k_1 = -700.0;
 
     
        

@@ -70,9 +70,10 @@ Bext = [Bd2;
 
 polo_k1 = -15.5;
 polo_k2 = -15;
-polo_k3 = -3+4.5i;
-polo_k4 = -3-4.5i;
-polo_k5  = -1.5; 
+polo_k3 = -2.2+3.8i;
+polo_k4 = -2.2-3.8i;
+polo_k5  = -1.3;
+chi = abs(real(polo_k3)) / abs(polo_k3)
 z1_k = exp(polo_k1 * Ts);
 z2_k = exp(polo_k2 * Ts);
 z3_k = exp(polo_k3 * Ts);
@@ -101,7 +102,7 @@ vel_simulink_full = out.vel_simulink;
 vel_est_full    = out.vel_est;
 x5_full         = out.x5;
 u_full          = out.u;
-%ref_d_full    = out.ref_d;
+ref_d_full    = out.ref_d;
 
 
 %% Simulación
@@ -137,7 +138,7 @@ save(nombre_archivo, ...
 % -------- Gráficos comparación --------
 % --------------------------------------
 t_start = 0;  
-t_end   = 56; 
+t_end   = 83; 
 t_sim_offset = 0;
 
 % Recorte de vectores según ventana de tiempo
@@ -152,9 +153,7 @@ d_real       = d_real_full(idx);
 d_est        = d_est_full(idx);
 vel_simulink = vel_simulink_full(idx); 
 vel_est      = vel_est_full(idx);
-
-% Extraemos también la referencia para plotearla
-%ref_d_real   = ref_d_full(idx); 
+ref_d_real   = ref_d_full(idx); 
 
 % -- Gráfico 1: Ángulo --
 figure('Name', 'Ángulo', 'NumberTitle', 'off');
@@ -181,7 +180,7 @@ figure('Name', 'Posición (d)', 'NumberTitle', 'off');
 plot(t_real, d_real, 'b', 'LineWidth', 1.5); hold on;
 plot(t_real, d_est, 'r--', 'LineWidth', 1.5);
 plot(t_sim+t_sim_offset, d_real_sim, 'g-.', 'LineWidth', 2); 
-%plot(t_real, ref_d_real, 'k:', 'LineWidth', 1.5); % Muestra la referencia comandada
+plot(t_real, ref_d_real, 'Color', [1, 0.5, 0], 'LineWidth', 1.5); % Muestra la referencia comandada
 hold off;
 title('Posición (d): Real vs Estimada vs Simulada');
 xlabel('Tiempo [s]'); ylabel('Posición [m]'); 
