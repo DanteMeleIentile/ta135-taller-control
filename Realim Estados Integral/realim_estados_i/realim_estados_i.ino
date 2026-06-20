@@ -14,7 +14,7 @@ Adafruit_MPU6050 mpu;
 void matlab_send(float* datos, uint32_t cantidad);
 
 /* MACROS */
-#define ENVIO_PULSE     50 * 10
+#define ENVIO_PULSE     50 * 15
 
 
 
@@ -93,7 +93,7 @@ void loop() {
 
     
     /* --- LOGICA DE PULSOS --- */
-    if (count_pulse >= ENVIO_PULSE) {
+    if (count_pulse >= ENVIO_PULSE) { 
       count_pulse = 0;
       if (estado_pulse == 0) {
         ref_d = 12;
@@ -101,6 +101,10 @@ void loop() {
       } 
       else if (estado_pulse == 1) {
         ref_d = 0;
+        estado_pulse = 0;
+      }
+      else if (estado_pulse == 2) {
+        ref_d = -0;
         estado_pulse = 0;
       }
     }
@@ -114,7 +118,9 @@ void loop() {
 
     float error   = ref_d - x3_hat;
     float x5_k_1  = x5 + error;
-    // ANTI-WINDUP 
+    // ANTI-WINDUP
+    if (x5_k_1 > 2000.0)  x5_k_1 = 2000.0;
+    if (x5_k_1 < -2000.0) x5_k_1 = -2000.0;
 
     
        

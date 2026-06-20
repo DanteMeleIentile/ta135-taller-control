@@ -59,7 +59,7 @@ l2_d = L_d(2);
 l3_d = L_d(3);
 l4_d = L_d(4);
 
-%% Realimentación con accióin intregral
+% Realimentación con accióin intregral
 C_new = [0, 0, 1, 0];
 
 Aext = [Ad2,     zeros(4,1); 
@@ -70,9 +70,9 @@ Bext = [Bd2;
 
 polo_k1 = -15.5;
 polo_k2 = -15;
-polo_k3 = -2.5; %2.5??        
-polo_k4 = -2.3;
-polo_k5  = -6; 
+polo_k3 = -3+4.5i;
+polo_k4 = -3-4.5i;
+polo_k5  = -1.5; 
 z1_k = exp(polo_k1 * Ts);
 z2_k = exp(polo_k2 * Ts);
 z3_k = exp(polo_k3 * Ts);
@@ -97,43 +97,53 @@ w_real_full     = out.w_real;
 w_est_full      = out.w_est;
 d_real_full     = out.d_real;
 d_est_full      = out.d_est;
-vel_simulink_full = out.vel_simulink; 
+vel_simulink_full = out.vel_simulink;
 vel_est_full    = out.vel_est;
+x5_full         = out.x5;
+u_full          = out.u;
+%ref_d_full    = out.ref_d;
 
 
 %% Simulación
 x0_sim = [0; 0; 0; 0];
 disp('Ejecutando simulación SIMULINK...');
-sim_data = sim('realim_estados_F', 'ReturnWorkspaceOutputs', 'on'); 
+sim_data = sim('realim_estados_i', 'ReturnWorkspaceOutputs', 'on'); 
 disp('Simulación finalizada');
 
-t_sim     = sim_data.sim_time;
-angle_sim = sim_data.angle_sim;
-w_sim     = sim_data.w_sim;
-d_sim     = sim_data.d_sim;
-vel_sim   = sim_data.vel_sim;
-
-
+% Extracción de variables de Simulink
+t_sim           = sim_data.sim_time;
+angle_real_sim  = sim_data.angle_real_sim;
+angle_est_sim   = sim_data.angle_est_sim;
+w_est_sim       = sim_data.w_est_sim;
+d_real_sim      = sim_data.d_real_sim;
+d_est_sim       = sim_data.d_est_sim;
+vel_est_sim     = sim_data.vel_est_sim;
+u_sim           = sim_data.u_sim;
 
 %% -------------- GUARDADO EN MATLAB --------------
 timestamp = datestr(now, 'yyyymmdd_HHMMSS');
-%nombre_archivo = sprintf('datos_ensayo_%s.mat', timestamp);
-%nombre_archivo = 'realim_estados_F_15_1.mat';
+nombre_archivo = sprintf('datos_ensayo_%s.mat', timestamp);
 disp(['Guardando variables en: ', nombre_archivo]);
+
+% Se agregan las nuevas variables x5, u y ref_d al guardado
 save(nombre_archivo, ...
-    't_full', 'angle_real_full', 'angle_est_full', 'w_real_full', 'w_est_full', 'd_real_full', 'd_est_full', 'vel_simulink_full', 'vel_est_full', ...
-    't_sim', 'angle_sim', 'w_sim', 'd_sim', 'vel_sim');
-
-
+    't_full', 'angle_real_full', 'angle_est_full', 'w_real_full', 'w_est_full', ...
+    'd_real_full', 'd_est_full', 'vel_simulink_full', 'vel_est_full', ...
+    'x5_full', 'u_full', 'ref_d_full', ...
+    't_sim', 'angle_real_sim', 'angle_est_sim', 'w_est_sim', ...
+    'd_real_sim', 'd_est_sim', 'vel_est_sim', 'u_sim');
 
 %% -------------------------------------
-% -------- Graficos compración ---------
+% -------- Gráficos comparación --------
 % --------------------------------------
-t_start = 6;  
+t_start = 0;  
 t_end   = 56; 
-t_sim_offset = 4;
+t_sim_offset = 0;
+
+% Recorte de vectores según ventana de tiempo
 idx = find(t_full >= t_start & t_full <= t_end);
 t_real = t_full(idx) - t_start;
+
 angle_real   = angle_real_full(idx);
 angle_est    = angle_est_full(idx);
 w_real       = w_real_full(idx);
@@ -143,43 +153,47 @@ d_est        = d_est_full(idx);
 vel_simulink = vel_simulink_full(idx); 
 vel_est      = vel_est_full(idx);
 
+% Extraemos también la referencia para plotearla
+%ref_d_real   = ref_d_full(idx); 
 
 % -- Gráfico 1: Ángulo --
 figure('Name', 'Ángulo', 'NumberTitle', 'off');
 plot(t_real, angle_real, 'b', 'LineWidth', 1.5); hold on;
 plot(t_real, angle_est, 'r--', 'LineWidth', 1.5);
-plot(t_sim+t_sim_offset, angle_sim, 'g-.', 'LineWidth', 2); hold off;
+plot(t_sim+t_sim_offset, angle_real_sim, 'g-.', 'LineWidth', 2); hold off;
 title('Ángulo (\theta): Real vs Estimado vs Simulado');
 xlabel('Tiempo [s]'); ylabel('Ángulo [rad]'); 
-legend('Real (Arduino)', 'Estimado (Observador)', 'Simulación Teórica', 'Location', 'best');
+legend('Real (Arduino)', 'Estimado (Arduino)', 'Real (Simulink)', 'Location', 'best');
 grid on;
 
 % -- Gráfico 2: Velocidad Angular --
 figure('Name', 'Velocidad Angular (w)', 'NumberTitle', 'off');
 plot(t_real, w_real, 'b', 'LineWidth', 1.5); hold on;
 plot(t_real, w_est, 'r--', 'LineWidth', 1.5);
-plot(t_sim+t_sim_offset, w_sim, 'g-.', 'LineWidth', 2); hold off;
+plot(t_sim+t_sim_offset, w_est_sim, 'g-.', 'LineWidth', 2); hold off;
 title('Velocidad Angular (\omega): Real vs Estimado vs Simulado');
 xlabel('Tiempo [s]'); ylabel('Vel. Angular [rad/s]');
-legend('Real (Arduino)', 'Estimado (Observador)', 'Simulación Teórica', 'Location', 'best');
+legend('Real (Arduino)', 'Estimado (Arduino)', 'Estimado (Simulink)', 'Location', 'best');
 grid on;
 
 % -- Gráfico 3: Posición --
 figure('Name', 'Posición (d)', 'NumberTitle', 'off');
 plot(t_real, d_real, 'b', 'LineWidth', 1.5); hold on;
 plot(t_real, d_est, 'r--', 'LineWidth', 1.5);
-plot(t_sim+t_sim_offset, d_sim, 'g-.', 'LineWidth', 2); hold off;
+plot(t_sim+t_sim_offset, d_real_sim, 'g-.', 'LineWidth', 2); 
+%plot(t_real, ref_d_real, 'k:', 'LineWidth', 1.5); % Muestra la referencia comandada
+hold off;
 title('Posición (d): Real vs Estimada vs Simulada');
 xlabel('Tiempo [s]'); ylabel('Posición [m]'); 
-legend('Real (Arduino)', 'Estimada (Observador)', 'Simulación Teórica', 'Location', 'best');
+legend('Real (Arduino)', 'Estimada (Arduino)', 'Real (Simulink)', 'Referencia', 'Location', 'best');
 grid on;
 
 % -- Gráfico 4: Velocidad Lineal --
 figure('Name', 'Velocidad Lineal (vel)', 'NumberTitle', 'off');
-plot(t_real, vel_est, 'r--', 'LineWidth', 1.5); hold on;
-%plot(t_real, vel_simulink, 'b', 'LineWidth', 1.5);
-plot(t_sim+t_sim_offset, vel_sim, 'g-.', 'LineWidth', 2); hold off;
+plot(t_real, vel_simulink, 'b', 'LineWidth', 1.5); hold on;
+plot(t_real, vel_est, 'r--', 'LineWidth', 1.5);
+plot(t_sim+t_sim_offset, vel_est_sim, 'g-.', 'LineWidth', 2); hold off;
 title('Velocidad Lineal (v): Medida vs Estimada vs Simulada');
 xlabel('Tiempo [s]'); ylabel('Velocidad [m/s]');
-legend('Derivada Numérica (Real)', 'Estimada (Observador)', 'Simulación Teórica', 'Location', 'best');
+legend('Derivada Numérica (Arduino)', 'Estimada (Arduino)', 'Estimada (Simulink)', 'Location', 'best');
 grid on;
