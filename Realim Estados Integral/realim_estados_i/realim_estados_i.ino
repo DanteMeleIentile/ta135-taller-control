@@ -14,7 +14,7 @@ Adafruit_MPU6050 mpu;
 void matlab_send(float* datos, uint32_t cantidad);
 
 /* MACROS */
-#define ENVIO_PULSE     50 * 15
+#define ENVIO_PULSE     50 * 8
 
 
 
@@ -96,7 +96,7 @@ void loop() {
     if (count_pulse >= ENVIO_PULSE) { 
       count_pulse = 0;
       if (estado_pulse == 0) {
-        ref_d = 10;
+        ref_d = 12;
         estado_pulse = 1;       
       } 
       else if (estado_pulse == 1) {
@@ -112,15 +112,21 @@ void loop() {
 
     
     /* --- IMPLEMENTACIÓN REALIMENTACION --- */
-    float u = -(K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat
-              + K[4] * x5);
+    float borrar = -( K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat);
+    float borrar_2 = - K[4] * x5;
+    float u = -( K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat
+                  + K[4] * x5 );
     actuador(u);
 
     float error   = ref_d - x3_hat;
+    //Zona muerta (menor al error de medicion)
+    if (abs(error) < 0.3) error = 0.0;
+   
+    
     float x5_k_1  = x5 + error;
     // ANTI-WINDUP
-    if (x5_k_1 > 700.0)  x5_k_1 = 700.0;
-    if (x5_k_1 < -700.0) x5_k_1 = -700.0;
+    if (x5_k_1 > ANTI_WINDUP_MAX) x5_k_1 = ANTI_WINDUP_MAX;
+    if (x5_k_1 < ANTI_WINDUP_MIN) x5_k_1 = ANTI_WINDUP_MIN;
 
     
        
@@ -128,6 +134,8 @@ void loop() {
     /* --- IMPLEMENTACIÓN OBSERVADOR --- */
     float error_angle = angle_fc - x1_hat;
     float error_dist  = dist     - x3_hat;
+
+    
     
     float x1_hat_k_1 = (Ad[0][0] * x1_hat) + (Ad[0][1] * x2_hat) + (Ad[0][2] * x3_hat) + (Ad[0][3] * x4_hat)
                       + (L[0][0] * error_angle) + (L[0][1] * error_dist)
@@ -160,8 +168,8 @@ void loop() {
                           gx_deg, x2_hat,
                           dist, x3_hat, 
                           x4_hat, 
-                          x5, u, ref_d};
-      matlab_send(to_send, 10);    
+                          borrar_2, u, ref_d, borrar};
+      matlab_send(to_send, 11);    
     }
     
   }

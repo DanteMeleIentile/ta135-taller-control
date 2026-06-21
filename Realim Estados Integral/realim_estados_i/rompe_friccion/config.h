@@ -24,6 +24,7 @@ const int MIN_DISTANCE = 30;
 #define REF_ANGLE_INICIAL   0.0 
 
 /* --- Acción integral --- */
-
+#define ANTI_WINDUP_MAX     +5000.0
+#define ANTI_WINDUP_MIN     -ANTI_WINDUP_MAX
 
 #endif
