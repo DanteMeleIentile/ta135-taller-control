@@ -70,9 +70,9 @@ Bext = [Bd2;
 
 polo_k1 = -15.5;
 polo_k2 = -15;
-polo_k3 = -4.0+0i; %probar -4,1 y -4.2
-polo_k4 = -4.1-0i;
-polo_k5  = -1.05;
+polo_k3 = -4.7+0i;
+polo_k4 = -4.6-0i;
+polo_k5  = -1.3;
 
 wn = abs(polo_k3);
 chi = abs(real(polo_k3)) / abs(polo_k3);
@@ -84,6 +84,7 @@ z2_k = exp(polo_k2 * Ts);
 z3_k = exp(polo_k3 * Ts);
 z4_k = exp(polo_k4 * Ts);
 z5_k = exp(polo_k5 * Ts);
+
 
 
 K_ext = place(Aext, Bext, [z1_k, z2_k, z3_k, z4_k, z5_k]);
@@ -130,7 +131,8 @@ u_sim           = sim_data.u_sim;
 
 %% -------------- GUARDADO EN MATLAB --------------
 timestamp = datestr(now, 'yyyymmdd_HHMMSS');
-nombre_archivo = sprintf('datos_ensayo_%s.mat', timestamp);
+%nombre_archivo = sprintf('datos_ensayo_%s.mat', timestamp);
+nombre_archivo = 'datos_12_41_4_105';
 disp(['Guardando variables en: ', nombre_archivo]);
 
 % Se agregan las nuevas variables x5, u y ref_d al guardado
@@ -145,8 +147,8 @@ save(nombre_archivo, ...
 % -------- Gráficos comparación --------
 % --------------------------------------
 t_start = 0;  
-t_end   = 83; 
-t_sim_offset = 0;
+t_end   = 4*8; 
+t_sim_offset = 0.7;
 
 % Recorte de vectores según ventana de tiempo
 idx = find(t_full >= t_start & t_full <= t_end);
@@ -191,6 +193,7 @@ plot(t_real, ref_d_real, 'Color', [1, 0.5, 0], 'LineWidth', 1.5); % Muestra la r
 hold off;
 title('Posición (d): Real vs Estimada vs Simulada');
 xlabel('Tiempo [s]'); ylabel('Posición [m]'); 
+xlim([0, 50]);
 legend('Real (Arduino)', 'Estimada (Arduino)', 'Real (Simulink)', 'Referencia', 'Location', 'best');
 grid on;
 

@@ -19,14 +19,14 @@ const float L[4][2] = {
 };
 
 /* --- REALIMENTACIÓN DE ESTADOS --- */
-  
-//const float K[5] = {6.068673, 0.009127, 32.622369, 5.497787, -0.562265};
-//const float K[5] = {0.738175, -0.143070, 16.749133, 2.857537, -0.223605};
-#define ANTI_WINDUP_MAX     +1550.0
+#define ANTI_WINDUP_MAX     +1100.0
 #define ANTI_WINDUP_MIN     -ANTI_WINDUP_MAX
 
-const float K[5] = {8.793140, 0.134488, 23.377781, 5.413247, -0.292679};
+//const float K[5] = {8.793140, 0.134488, 23.377781, 5.413247, -0.292679};//+12 OK
+//const float K[5] = {9.265710, 0.149172, 24.315834, 5.610372, -0.306707}; // -10 OK
+//winduo +1450.0
 
+//mejorar
+const float K[5] = {12.308343, 0.240620, 31.802033, 6.982385, -0.470912};
 
-  
 #endif

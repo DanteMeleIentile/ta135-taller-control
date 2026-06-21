@@ -96,11 +96,11 @@ void loop() {
     if (count_pulse >= ENVIO_PULSE) { 
       count_pulse = 0;
       if (estado_pulse == 0) {
-        ref_d = 12;
+        ref_d = REF_0;
         estado_pulse = 1;       
       } 
       else if (estado_pulse == 1) {
-        ref_d = 0;
+        ref_d = REF_0;
         estado_pulse = 0;
       }
       else if (estado_pulse == 2) {
