@@ -45,9 +45,10 @@ uint32_t estado_pulse   = 0;
 /* --- */
 void setup() {
   Serial.begin(115200);
-  myservo.attach(9);
-  delay(1000);
+  
   myservo.writeMicroseconds(ORIGEN_U); 
+  myservo.attach(SERVO_PIN);
+  delay(500);
   
   if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
@@ -96,7 +97,7 @@ void loop() {
     if (count_pulse >= ENVIO_PULSE) { 
       count_pulse = 0;
       if (estado_pulse == 0) {
-        ref_d = REF_0;
+        ref_d = REF_10;
         estado_pulse = 1;       
       } 
       else if (estado_pulse == 1) {

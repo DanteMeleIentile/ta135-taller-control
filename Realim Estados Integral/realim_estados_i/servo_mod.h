@@ -4,7 +4,7 @@
 #include <Servo.h>
 
 #define ORIGEN_U        1580   
-#define SERVO_PIN       9
+#define SERVO_PIN       10
 #define SAT_MAX         400    
 #define SAT_MIN        -400    
 

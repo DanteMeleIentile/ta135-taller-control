@@ -16,7 +16,7 @@ void setup() {
   Serial.begin(115200);
   
   // Inicialización del servo
-  myservo.attach(9);
+  myservo.attach(10);
   delay(1000);
   myservo.writeMicroseconds(ORIGEN_U); 
   
