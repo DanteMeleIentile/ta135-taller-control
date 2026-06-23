@@ -3,7 +3,7 @@
 % ---------------------------------------------------------
 clear all; close all; clc;
 % Cargar los datos. Asegurate de que existan las variables de los 4 estados.
-load('datos_-10_465_46_125_A.mat'); 
+load('datos_20_465_46_125_A.mat'); 
 Ts = 20e-3; 
 
 % Configuraciones de tiempo de la ventana
@@ -99,7 +99,10 @@ end
 
 %% ---------------- SELECCIÓN Y PROMEDIO GENERAL ----------------
 % <--- ¡EDITAR ESTO según lo que anotaste en la inspección visual!
-ensayos_buenos = [2, 4,5, 9, 10];
+%ensayos_buenos = [2, 4,5, 9, 10]; %-10 A
+%ensayos_buenos = [3, 4, 5, 6, 7, 8 ,9]; % -10 B
+%ensayos_buenos = [2, 4, 6, 7, 8,9,15, 16 ,17,19,21,22,23,24]; % 20 B
+ensayos_buenos = [4, 6, 7, 8, 9 ,10,18,20,22,24,27,31]; % 20 temp
 ensayos_buenos = ensayos_buenos(ensayos_buenos <= size(d_real_matrix, 2));
 
 % Promedios
@@ -109,7 +112,7 @@ w_promedio      = mean(w_matrix(:, ensayos_buenos), 2, 'omitnan');
 v_promedio      = mean(v_matrix(:, ensayos_buenos), 2, 'omitnan');
 
 % Ajuste simulación
-offset_tiempo_sim = 0.0; 
+offset_tiempo_sim = -16.0; 
 offset_amp_sim    = 0.0; 
 t_sim_ajustado = t_sim + offset_tiempo_sim;
 idx_sim = find(t_sim_ajustado >= -1 & t_sim_ajustado <= 17);
@@ -142,6 +145,7 @@ plot(vector_tiempo_ventana, ref_matrix, 'k-', 'LineWidth', 1.5, 'DisplayName', '
 plot(vector_tiempo_ventana, d_real_promedio, 'r', 'LineWidth', 2.5, 'DisplayName', 'Prom. Mediciones');
 hold off; xlabel('Tiempo [s]'); ylabel('d(t) [cm]'); xlim([-1 17]); legend('Location', 'best');
 
+%%
 % FIGURA 2: ÁNGULO (theta)
 figure('Name', 'Estado x1: Ángulo', 'Position', [100 250 800 400]);
 hold on; grid on;
@@ -159,8 +163,9 @@ if exist('angle_real_sim', 'var')
     plot(t_sim_ajustado(idx_sim), angle_real_sim(idx_sim), 'g-.', 'LineWidth', 2, 'DisplayName', 'Simulación');
 end
 plot(vector_tiempo_ventana, ang_promedio, 'r', 'LineWidth', 2.5, 'DisplayName', 'Prom. Mediciones');
-hold off; xlabel('Tiempo [s]'); ylabel('$\theta(t)$ [°]'); xlim([6 12]); legend('Location', 'best');
+hold off; xlabel('Tiempo [s]'); ylabel('$\theta(t) \ [^\circ]$', 'Interpreter', 'latex'); xlim([6 12]); legend('Location', 'best');
 
+%%
 % FIGURA 3: VELOCIDAD DEL CARRO (v)
 figure('Name', 'Estado 4: Velocidad del Carro', 'Position', [150 200 800 400]);
 hold on; grid on;
@@ -179,6 +184,7 @@ if exist('vel_est_sim', 'var')
 end
 plot(vector_tiempo_ventana, v_promedio, 'r', 'LineWidth', 2.5, 'DisplayName', 'Prom. Mediciones');
 hold off; xlabel('Tiempo [s]'); ylabel('$\dot{d}(t)$ [cm/s]', 'Interpreter', 'latex'); xlim([4 14]); legend('Location', 'best');
+
 
 % FIGURA 4: VELOCIDAD ANGULAR (w)
 figure('Name', 'Estado x2: Velocidad Angular', 'Position', [200 150 800 400]);
