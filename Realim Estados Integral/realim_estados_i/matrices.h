@@ -28,18 +28,20 @@ const float L[4][2] = {
 
 
 /* --- REALIMENTACIÓN DE ESTADOS --- */
-#define ANTI_WINDUP_MAX     +1150.0
+#define ANTI_WINDUP_MAX     +1750.0
 #define ANTI_WINDUP_MIN     -ANTI_WINDUP_MAX
 
 //Antes de romper
 //1100
 //const float K[5] = {12.308343, 0.240620, 31.802033, 6.982385, -0.470912};
 
+//Ok?
 //const float K[5] = {12.324970, 0.240745, 32.039818, 7.002996, -0.483819};
 
 
+
 //Fine tuning?
-const float K[5] = {11.754555, 0.222881, 30.934852, 6.768555, -0.464827};
+const float K[5] = {12.324970, 0.240745, 32.039818, 7.002996, -0.483819};
 
 
 

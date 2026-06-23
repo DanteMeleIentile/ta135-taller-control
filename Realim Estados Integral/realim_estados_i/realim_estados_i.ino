@@ -97,11 +97,11 @@ void loop() {
     if (count_pulse >= ENVIO_PULSE) { 
       count_pulse = 0;
       if (estado_pulse == 0) {
-        ref_d = REF_10;
-        estado_pulse = 1;       
+        ref_d = REF_0;
+        estado_pulse = 0;       
       } 
       else if (estado_pulse == 1) {
-        ref_d = REF_0;
+        ref_d = REF_MENOS_10;
         estado_pulse = 0;
       }
       else if (estado_pulse == 2) {
@@ -113,8 +113,8 @@ void loop() {
 
     
     /* --- IMPLEMENTACIÓN REALIMENTACION --- */
-    float borrar = -( K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat);
-    float borrar_2 = - K[4] * x5;
+    //float borrar = -( K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat);
+    //float borrar_2 = - K[4] * x5;
     float u = -( K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat
                   + K[4] * x5 );
     actuador(u);
@@ -169,8 +169,8 @@ void loop() {
                           gx_deg, x2_hat,
                           dist, x3_hat, 
                           x4_hat, 
-                          borrar_2, u, ref_d, borrar};
-      matlab_send(to_send, 11);    
+                          x5, u, ref_d};
+      matlab_send(to_send, 10);    
     }
     
   }

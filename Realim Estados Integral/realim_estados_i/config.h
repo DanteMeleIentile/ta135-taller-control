@@ -29,8 +29,10 @@ const int MIN_DISTANCE = 30;
 #define REF_0               0.0
 #define REF_12              12.0
 #define REF_10              10.0
-#define REF_MENOS_10       -10.0
-#define REF_MENOS_8        -8.0
+#define REF_8               8.0
+#define REF_MENOS_12        -12.0
+#define REF_MENOS_10        -10.0
+#define REF_MENOS_8         -8.0
 
 
 
