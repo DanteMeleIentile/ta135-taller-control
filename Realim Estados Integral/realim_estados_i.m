@@ -46,8 +46,8 @@ disp(Cd2');
 % Observador
 l1_cont = -30; 
 l2_cont = -40; 
-l3_cont = -20; 
-l4_cont = -20; 
+l3_cont = -12; 
+l4_cont = -12; 
 l1_z = exp(l1_cont * Ts);
 l2_z = exp(l2_cont * Ts);
 l3_z = exp(l3_cont * Ts);
@@ -58,6 +58,13 @@ l1_d = L_d(1);
 l2_d = L_d(2);
 l3_d = L_d(3);
 l4_d = L_d(4);
+
+fprintf('const float L[4][2] = {\n');
+for i = 1:4
+    fprintf('\t{%.6f,\t\t%.6f}', L_d(i,1), L_d(i,2));
+    if i < 5, fprintf(',\n'); else fprintf('\n'); end
+end
+fprintf('};\n');
 
 % Realimentación con accióin intregral
 C_new = [0, 0, 1, 0];
@@ -70,9 +77,9 @@ Bext = [Bd2;
 
 polo_k1 = -15.5;
 polo_k2 = -15;
-polo_k3 = -4.7+0i;
-polo_k4 = -4.6-0i;
-polo_k5  = -1.3;
+polo_k3 = -4.5 + 0.5i;
+polo_k4 = -4.5 - 0.5i;
+polo_k5  = -1.35;
 
 wn = abs(polo_k3);
 chi = abs(real(polo_k3)) / abs(polo_k3);
@@ -132,7 +139,7 @@ u_sim           = sim_data.u_sim;
 %% -------------- GUARDADO EN MATLAB --------------
 timestamp = datestr(now, 'yyyymmdd_HHMMSS');
 %nombre_archivo = sprintf('datos_ensayo_%s.mat', timestamp);
-nombre_archivo = 'datos_12_41_4_105';
+nombre_archivo = 'datos_10_465_46_125';
 disp(['Guardando variables en: ', nombre_archivo]);
 
 % Se agregan las nuevas variables x5, u y ref_d al guardado
