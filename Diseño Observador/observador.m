@@ -69,64 +69,65 @@ fprintf('};\n');
 
 %%
 %save('observador_XX_XX_XX_XX.mat', 't_real', 'angle_real', 'angle_est', 'w_real', 'w_est', 'd_real', 'd_est', 'vel_est', 'vel_simulink', 'u_real');
-t_real          = out.tout;
-angle_real      = out.angle_barra;
-angle_est       = out.angle_est;
-w_real          = out.w_real;
-w_est           = out.w_est;
-d_real          = out.d_real;
-d_est           = out.d_est;
-vel_est         = out.vel_est;
-vel_simulink    = out.vel_simulink;
-u_real          = out.u;
+% t_real          = out.tout;
+% angle_real      = out.angle_barra;
+% angle_est       = out.angle_est;
+% w_real          = out.w_real;
+% w_est           = out.w_est;
+% d_real          = out.d_real;
+% d_est           = out.d_est;
+% vel_est         = out.vel_est;
+% vel_simulink    = out.vel_simulink;
+% u_real          = out.u;
 
 %%
 
+x_max = 3.6;
 
 figure('Name', 'Ángulo', 'NumberTitle', 'off');
 plot(t_real, angle_real, 'b', 'LineWidth', 1.5); 
 hold on;
 plot(t_real, angle_est, 'r--', 'LineWidth', 1.5);
 hold off;
-title('Ángulo: Medido vs Estimado');
+% title('Ángulo: Medido vs Estimado');
 xlabel('Tiempo [s]');
-ylabel('Ángulo [rad]'); % Cambia las unidades si están en grados
-legend('Medido (angle\_real)', 'Estimado (angle\_est)', 'Location', 'best');
+ylabel('$\theta(t) \ [^\circ]$', 'Interpreter', 'latex'); 
+legend('Medido', 'Estimado', 'Location', 'southeast');
 grid on;
-
+xlim([0, x_max])
 
 figure('Name', 'Velocidad Angular (w)', 'NumberTitle', 'off');
 plot(t_real, w_real, 'b', 'LineWidth', 1.5); 
 hold on;
 plot(t_real, w_est, 'r--', 'LineWidth', 1.5);
 hold off;
-title('Velocidad Angular (w): Medida vs Estimada');
+% title('Velocidad Angular (w): Medida vs Estimada');
 xlabel('Tiempo [s]');
-ylabel('Velocidad Angular [rad/s]');
-legend('Medida (w\_real)', 'Estimada (w\_est)', 'Location', 'best');
+ylabel('$\dot{\theta}(t)$ [rad/s]', 'Interpreter', 'latex');
+legend('Medido', 'Estimado', 'Location', 'southeast');
 grid on;
-
+xlim([0, x_max])
 
 figure('Name', 'Posición (d)', 'NumberTitle', 'off');
 plot(t_real, d_real, 'b', 'LineWidth', 1.5); 
 hold on;
 plot(t_real, d_est, 'r--', 'LineWidth', 1.5);
 hold off;
-title('Posición (d): Medida vs Estimada');
+% title('Posición (d): Medida vs Estimada');
 xlabel('Tiempo [s]');
-ylabel('Posición [m]'); 
-legend('Medida (d\_real)', 'Estimada (d\_est)', 'Location', 'best');
+ylabel('$d(t)$ [m]', 'Interpreter', 'latex');
+legend('Medido ', 'Estimado', 'Location', 'southeast');
 grid on;
-
+xlim([0, x_max])
 
 figure('Name', 'Velocidad Lineal (vel)', 'NumberTitle', 'off');
 plot(t_real, vel_simulink, 'b', 'LineWidth', 1.5); 
 hold on;
 plot(t_real, vel_est, 'r--', 'LineWidth', 1.5);
 hold off;
-title('Velocidad (vel): Simulink/Medida vs Estimada');
+% title('Velocidad (vel): Simulink/Medida vs Estimada');
 xlabel('Tiempo [s]');
-ylabel('Velocidad [m/s]');
-legend('Simulink/Medida (vel\_simulink)', 'Estimada (vel\_est)', 'Location', 'best');
+ylabel('$\dot{d}(t)$ [m/s]', 'Interpreter', 'latex');
+legend('Calculado*', 'Estimado', 'Location', 'southeast');
 grid on;
-
+xlim([0, x_max])

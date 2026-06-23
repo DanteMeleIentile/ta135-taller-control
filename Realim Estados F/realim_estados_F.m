@@ -89,15 +89,15 @@ fprintf('const float F[2]  = {%.6f, %.6f};\n', F(1), F(2));
 
 
 %% Toma de datos ARDUINO
-t_full          = out.tout;
-angle_real_full = out.angle_barra;
-angle_est_full  = out.angle_est;
-w_real_full     = out.w_real;
-w_est_full      = out.w_est;
-d_real_full     = out.d_real;
-d_est_full      = out.d_est;
-vel_simulink_full = out.vel_simulink; 
-vel_est_full    = out.vel_est;
+% t_full          = out.tout;
+% angle_real_full = out.angle_barra;
+% angle_est_full  = out.angle_est;
+% w_real_full     = out.w_real;
+% w_est_full      = out.w_est;
+% d_real_full     = out.d_real;
+% d_est_full      = out.d_est;
+% vel_simulink_full = out.vel_simulink; 
+% vel_est_full    = out.vel_est;
 
 
 %% Simulación
@@ -115,14 +115,14 @@ vel_sim   = sim_data.vel_sim;
 
 
 %% -------------- GUARDADO EN MATLAB --------------
-timestamp = datestr(now, 'yyyymmdd_HHMMSS');
-%nombre_archivo = sprintf('datos_ensayo_%s.mat', timestamp);
-%nombre_archivo = 'realim_estados_F_15_1.mat';
-disp(['Guardando variables en: ', nombre_archivo]);
-save(nombre_archivo, ...
-    't_full', 'angle_real_full', 'angle_est_full', 'w_real_full', 'w_est_full', 'd_real_full', 'd_est_full', 'vel_simulink_full', 'vel_est_full', ...
-    't_sim', 'angle_sim', 'w_sim', 'd_sim', 'vel_sim');
-
+% timestamp = datestr(now, 'yyyymmdd_HHMMSS');
+% %nombre_archivo = sprintf('datos_ensayo_%s.mat', timestamp);
+% %nombre_archivo = 'realim_estados_F_15_1.mat';
+% disp(['Guardando variables en: ', nombre_archivo]);
+% save(nombre_archivo, ...
+%     't_full', 'angle_real_full', 'angle_est_full', 'w_real_full', 'w_est_full', 'd_real_full', 'd_est_full', 'vel_simulink_full', 'vel_est_full', ...
+%     't_sim', 'angle_sim', 'w_sim', 'd_sim', 'vel_sim');
+% 
 
 
 %% -------------------------------------
@@ -142,43 +142,53 @@ d_est        = d_est_full(idx);
 vel_simulink = vel_simulink_full(idx); 
 vel_est      = vel_est_full(idx);
 
+x_max = 30;
 
 % -- Gráfico 1: Ángulo --
 figure('Name', 'Ángulo', 'NumberTitle', 'off');
 plot(t_real, angle_real, 'b', 'LineWidth', 1.5); hold on;
 plot(t_real, angle_est, 'r--', 'LineWidth', 1.5);
 plot(t_sim+t_sim_offset, angle_sim, 'g-.', 'LineWidth', 2); hold off;
-title('Ángulo (\theta): Real vs Estimado vs Simulado');
-xlabel('Tiempo [s]'); ylabel('Ángulo [rad]'); 
-legend('Real (Arduino)', 'Estimado (Observador)', 'Simulación Teórica', 'Location', 'best');
+% title('Ángulo (\theta): Real vs Estimado vs Simulado');
+xlabel('Tiempo [s]'); 
+ylabel('$\theta(t) \ [^\circ]$', 'Interpreter', 'latex'); 
+legend('Medido', 'Estimado', 'Simulado', 'Location', 'northeast');
 grid on;
+xlim([0, x_max])
 
 % -- Gráfico 2: Velocidad Angular --
 figure('Name', 'Velocidad Angular (w)', 'NumberTitle', 'off');
 plot(t_real, w_real, 'b', 'LineWidth', 1.5); hold on;
 plot(t_real, w_est, 'r--', 'LineWidth', 1.5);
 plot(t_sim+t_sim_offset, w_sim, 'g-.', 'LineWidth', 2); hold off;
-title('Velocidad Angular (\omega): Real vs Estimado vs Simulado');
-xlabel('Tiempo [s]'); ylabel('Vel. Angular [rad/s]');
-legend('Real (Arduino)', 'Estimado (Observador)', 'Simulación Teórica', 'Location', 'best');
+% title('Velocidad Angular (\omega): Real vs Estimado vs Simulado');
+xlabel('Tiempo [s]'); 
+ylabel('$\dot{\theta}(t)$ [rad/s]', 'Interpreter', 'latex');
+legend('Medido', 'Estimado', 'Simulado', 'Location', 'northeast');
 grid on;
+xlim([0, x_max])
 
 % -- Gráfico 3: Posición --
 figure('Name', 'Posición (d)', 'NumberTitle', 'off');
 plot(t_real, d_real, 'b', 'LineWidth', 1.5); hold on;
 plot(t_real, d_est, 'r--', 'LineWidth', 1.5);
 plot(t_sim+t_sim_offset, d_sim, 'g-.', 'LineWidth', 2); hold off;
-title('Posición (d): Real vs Estimada vs Simulada');
-xlabel('Tiempo [s]'); ylabel('Posición [m]'); 
-legend('Real (Arduino)', 'Estimada (Observador)', 'Simulación Teórica', 'Location', 'best');
+% title('Posición (d): Real vs Estimada vs Simulada');
+xlabel('Tiempo [s]'); 
+ylabel('$d(t)$ [m]', 'Interpreter', 'latex');
+legend('Medido', 'Estimado', 'Simulado', 'Location', 'northeast');
 grid on;
+xlim([0, x_max])
+ylim([-5, 20])
 
 % -- Gráfico 4: Velocidad Lineal --
 figure('Name', 'Velocidad Lineal (vel)', 'NumberTitle', 'off');
-plot(t_real, vel_est, 'r--', 'LineWidth', 1.5); hold on;
-%plot(t_real, vel_simulink, 'b', 'LineWidth', 1.5);
+plot(t_real, vel_simulink, 'b', 'LineWidth', 1.5); hold on;
+plot(t_real, vel_est, 'r--', 'LineWidth', 1.5);
 plot(t_sim+t_sim_offset, vel_sim, 'g-.', 'LineWidth', 2); hold off;
-title('Velocidad Lineal (v): Medida vs Estimada vs Simulada');
-xlabel('Tiempo [s]'); ylabel('Velocidad [m/s]');
-legend('Derivada Numérica (Real)', 'Estimada (Observador)', 'Simulación Teórica', 'Location', 'best');
+% title('Velocidad Lineal (v): Medida vs Estimada vs Simulada');
+xlabel('Tiempo [s]'); 
+ylabel('$\dot{d}(t)$ [m/s]', 'Interpreter', 'latex');
+legend('Calculado*', 'Estimado', 'Simulado', 'Location', 'northeast');
 grid on;
+xlim([22.5, 27])
