@@ -117,7 +117,7 @@ vel_simulink_full = out.vel_simulink;
 vel_est_full    = out.vel_est;
 x5_full         = out.x5;
 u_full          = out.u;
-ref_d_full    = out.ref_d;
+ref_d_full      = out.ref_d;
 
 
 %% Simulación
