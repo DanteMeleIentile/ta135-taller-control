@@ -2,12 +2,12 @@
 % CÓDIGO PARA GENERAR GRÁFICOS PROMEDIO DE LOS EXP. (GEMINI)
 % ---------------------------------------------------------
 clear all; close all; clc;
-load('datos_10_465_46_125.mat'); 
+load('datos_10_465_46_125_A.mat'); 
 Ts = 20e-3; 
 
 % Configuraciones de tiempo de la ventana
 t_half_cycle = 8; % 8 segundos abajo, 8 segundos arriba
-t_pad = 1;        % 1 segundo de padding a cada lado
+t_pad = 0.5;        % padding a cada lado
 muestras_half = round(t_half_cycle / Ts);
 muestras_pad  = round(t_pad / Ts);
 muestras_totales = 2 * muestras_half + 2 * muestras_pad;
@@ -109,7 +109,7 @@ disp('¡Listo! Terminaste de revisar todos los ensayos.');
 
 %% ---------------- SELECCIÓN Y PROMEDIO ----------------
 % <--- ¡EDITAR ESTO según lo que anotaste en la inspección visual!
-ensayos_buenos = [1, 2, 4, 5, 6, 10]; 
+ensayos_buenos = [3, 4, 5, 6, 8]; 
 
 % Filtramos asegurándonos de que no pongamos índices que quedaron vacíos
 ensayos_buenos = ensayos_buenos(ensayos_buenos <= size(d_real_matrix, 2));
@@ -134,10 +134,10 @@ figure('Name', 'Rendimiento Ball and Beam (Validados)', 'NumberTitle', 'off', 'P
 hold on; grid on;
 
 % Bandas de tolerancia (Fondo)
-plot([-1 8], [b0_sup b0_sup], 'r:', 'LineWidth', 1.5, 'HandleVisibility', 'off');
-plot([-1 8], [b0_inf b0_inf], 'r:', 'LineWidth', 1.5, 'HandleVisibility', 'off');
-plot([8 17], [b1_sup b1_sup], 'r:', 'LineWidth', 1.5, 'HandleVisibility', 'off');
-plot([8 17], [b1_inf b1_inf], 'r:', 'LineWidth', 1.5, 'HandleVisibility', 'off');
+plot([-1 8], [b0_sup b0_sup], 'k:', 'LineWidth', 1.5, 'HandleVisibility', 'off');
+plot([-1 8], [b0_inf b0_inf], 'k:', 'LineWidth', 1.5, 'HandleVisibility', 'off');
+plot([8 17], [b1_sup b1_sup], 'k:', 'LineWidth', 1.5, 'HandleVisibility', 'off');
+plot([8 17], [b1_inf b1_inf], 'k:', 'LineWidth', 1.5, 'HandleVisibility', 'off');
 
 % Tiempos de establecimiento (Fondo)
 xline(2.5, 'm--', 'ts = 2.5s', 'LabelVerticalAlignment', 'bottom', 'LabelHorizontalAlignment', 'left', 'HandleVisibility', 'off');
@@ -145,27 +145,27 @@ xline(10.5, 'm--', 'ts = 10.5s', 'LabelVerticalAlignment', 'bottom', 'LabelHoriz
 
 % A) Todos los ensayos reales (Celeste transparente)
 for i = 1:size(d_real_filtrada, 2)
-    h_todas = plot(vector_tiempo_ventana, d_real_filtrada(:, i), 'Color', [0.5, 0.7, 1, 0.5], 'LineWidth', 0.5);
+    h_todas = plot(vector_tiempo_ventana, d_real_filtrada(:, i), 'Color', [0.5, 0.7, 1, 0.8], 'LineWidth', 0.5);
     set(get(get(h_todas,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
 end
 
 % B) Simulación con los offsets aplicados visualmente (Verde raya-punto)
-h_sim = plot(t_sim_ajustado(idx_sim), d_real_sim(idx_sim) + offset_amp_sim, 'g-.', 'LineWidth', 2);
+h_sim = plot(t_sim_ajustado(idx_sim), d_real_sim(idx_sim) * 0.8333333333 + offset_amp_sim, 'g-.', 'LineWidth', 2);
 
 % C) Promedio Real (Azul fuerte)
-h_promedio = plot(vector_tiempo_ventana, d_real_promedio, 'b', 'LineWidth', 2.5);
+h_promedio = plot(vector_tiempo_ventana, d_real_promedio, 'r', 'LineWidth', 2.5);
 
 % D) Referencia (Negro)
-h_ref = plot(vector_tiempo_ventana, ref_matrix, 'k--', 'LineWidth', 1.5);
+h_ref = plot(vector_tiempo_ventana, ref_matrix, 'k-', 'LineWidth', 1.5);
 
 hold off;
-title('Posición (d): Promedio de Ensayos Reales vs Simulación vs Referencia');
+%title('Posición (d): Promedio de Ensayos Reales vs Simulación vs Referencia');
 xlabel('Tiempo [s]');
-ylabel('Posición [m]');
+ylabel('d(t) [cm]');
 xlim([-1 17]);
 
 legend([h_ref, h_sim, h_promedio], ...
-    'Referencia Comandada', ...
-    'Respuesta Simulada (Simulink)', ...
-    sprintf('Promedio Real (%d ensayos)', length(ensayos_buenos)), ...
+    'Ref', ...
+    'd(t) sim)', ...
+    'Promedio d(t)', ...
     'Location', 'best');
