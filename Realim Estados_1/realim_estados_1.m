@@ -158,7 +158,7 @@ plot(t_real, w_est, 'r--', 'LineWidth', 1.5);
 plot(t_sim+t_sim_offset, w_sim, 'g-.', 'LineWidth', 2); hold off;
 % title('Velocidad Angular (\omega): Real vs Estimado vs Simulado');
 xlabel('Tiempo [s]'); 
-ylabel('$\dot{\theta}(t)$ [rad/s]', 'Interpreter', 'latex');
+ylabel('$\dot{\theta}(t) \ [^\circ / s]$', 'Interpreter', 'latex');
 legend('Medido', 'Estimado', 'Simulado', 'Location', 'southeast');
 grid on;
 xlim([0, x_max])
@@ -170,7 +170,7 @@ plot(t_real, d_est, 'r--', 'LineWidth', 1.5);
 plot(t_sim+t_sim_offset, d_sim, 'g-.', 'LineWidth', 2); hold off;
 % title('Posición (d): Real vs Estimada vs Simulada');
 xlabel('Tiempo [s]'); 
-ylabel('$d(t)$ [m]', 'Interpreter', 'latex');
+ylabel('$d(t)$ [cm]', 'Interpreter', 'latex');
 legend('Medido', 'Estimado', 'Simulado', 'Location', 'southeast');
 grid on;
 xlim([0, x_max])
@@ -182,7 +182,7 @@ plot(t_real, vel_est, 'r--', 'LineWidth', 1.5);
 plot(t_sim+t_sim_offset, vel_sim, 'g-.', 'LineWidth', 2); hold off;
 % title('Velocidad Lineal (v): Medida vs Estimada vs Simulada');
 xlabel('Tiempo [s]'); 
-ylabel('$\dot{d}(t)$ [m/s]', 'Interpreter', 'latex');
+ylabel('$\dot{d}(t)$ [cm/s]', 'Interpreter', 'latex');
 legend('Calculado*', 'Estimado', 'Simulado', 'Location', 'southeast');
 grid on;
 xlim([0, x_max])
