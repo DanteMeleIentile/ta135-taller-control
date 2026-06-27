@@ -113,8 +113,6 @@ void loop() {
 
     
     /* --- IMPLEMENTACIÓN REALIMENTACION --- */
-    //float borrar = -( K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat);
-    //float borrar_2 = - K[4] * x5;
     float u = -( K[0] * x1_hat + K[1] * x2_hat + K[2] * x3_hat + K[3] * x4_hat
                   + K[4] * x5 );
     actuador(u);
